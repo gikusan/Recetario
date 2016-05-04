@@ -14,24 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import webapp2
 
 from Estructuras.Usuarios import Usuario
 from Estructuras.Recetas import Receta
+from Estructuras.Pasos import Paso
 
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
 
-        p = Usuario.query(Usuario.nick == "javi")
-        u = p.fetch()[0]
-        r = Receta(id_usuario=u.key.id(),
-                   id_categoria="2",
-                   nombre="Flan",
-                   etiquetas="prueba")
-        r.put()
+        p = Receta.get_by_id(4644337115725824)
 
-        self.response.write('Esto empieza a funcionar '+u.get_id_as_str())
+        for pa in p.obtener_pasos():
+            self.response.write(pa.descripcion+"<br/>")
+
+
 
 
 app = webapp2.WSGIApplication([
