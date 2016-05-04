@@ -1,0 +1,26 @@
+-------------------------------------------------------------------------------------
+
+Para utilizar los objetos importar de la siguiente manera:
+
+from Estructuras.Recetas import Receta
+
+-------------------------------------------------------------------------------------
+
+Para crear un objeto hacerlo de la siguiente manera
+
+Objeto(variable=valor,variable2=valor)
+
+-------------------------------------------------------------------------------------
+
+
+Para buscar un objeto por id
+
+p = Receta.get_by_id(4644337115725824)
+
+
+-------------------------------------------------------------------------------------
+
+Recorrer un array:
+
+    for pa in p.obtener_pasos():
+        self.response.write(pa.descripcion+"<br/>")

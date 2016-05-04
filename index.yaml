@@ -10,3 +10,7 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: Paso
+  properties:
+  - name: id_receta
+  - name: orden

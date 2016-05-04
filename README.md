@@ -8,6 +8,6 @@ http://inbound-obelisk-129623.appspot.com/
 
 # Desarrolladores
 
-  ##### Borja Diez
-  ##### Adrian González
-  ##### Ioritz Cabero
+  ### Borja Diez
+  ### Adrian González
+  ### Ioritz Cabero
