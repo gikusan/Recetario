@@ -16,9 +16,23 @@
 #
 import webapp2
 
+from Estructuras.Usuarios import Usuario
+from Estructuras.Recetas import Receta
+
+
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Esto empieza a funcionar')
+
+        p = Usuario.query(Usuario.nick == "javi")
+        u = p.fetch()[0]
+        r = Receta(id_usuario=u.key.id(),
+                   id_categoria="2",
+                   nombre="Flan",
+                   etiquetas="prueba")
+        r.put()
+
+        self.response.write('Esto empieza a funcionar '+u.get_id_as_str())
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
