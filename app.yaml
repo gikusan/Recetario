@@ -5,16 +5,18 @@ api_version: 1
 threadsafe: yes
 
 handlers:
+
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
 
+- url: /Graficos
+  static_dir: Graficos
+
 - url: .*
   script: main.app
 
-- url: /Templates/materialize
-  static_files: Templates/materialize
-  upload: /Templates/materialize
+
 
 libraries:
 - name: webapp2
