@@ -21,7 +21,7 @@ p = Receta.get_by_id(4644337115725824)
 
 -------------------------------------------------------------------------------------
 
-Recorrer un array:
+Recorrer un arrays:
 
     for pa in p.obtener_pasos():
         self.response.write(pa.descripcion+"<br/>")
