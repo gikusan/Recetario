@@ -1,0 +1,58 @@
+<html lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Parallax Template - Materialize</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="Graficos\materialize\css\materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="Graficos\materialize\css\style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+</head>
+<body>
+    <div class="navbar-fixed">
+      <nav class="white" role="navigation" >
+        <div class="nav-wrapper container">
+          <a id="logo-container" href="/" class="brand-logo">Logo</a>
+          <ul class="right hide-on-med-and-down">
+            {% if login == 'no' %}
+              <li><a href="#">Login</a></li>
+              <li><a href="#">Registro</a></li>
+            {% else %}
+              <li><a href="#">Logout</a></li>
+            {% endif %}
+
+            {% if rol == 'Anonimo' or rol == 'Usuario' or rol == 'Admin'%}
+              <li><a href="#">Buscar</a></li>
+              <li><a href="#">Categorias</a></li>
+            {% endif %}
+            {% if rol == 'Usuario' or rol == 'Admin'%}
+             <li><a href="#">Mis recetas</a></li>
+            {% endif %}
+            {% if rol == 'Admin' %}
+             <li><a href="#">Administración</a></li>
+            {% endif %}
+
+          </ul>
+
+          <ul id="nav-mobile" class="side-nav">
+            <li><a href="#">Login</a></li>
+            <li><a href="#">Registro</a></li>
+            <li><a href="#">Categorias</a></li>
+            <li class="search">
+              <div class="search-wrapper card">
+                <input id="search"><i class="material-icons">search</i>
+                <div class="search-results"></div>
+              </div>
+            </li>
+          </ul>
+          <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+        </div>
+      </nav>
+    </div>
+        {% block content %}
+
+        {% endblock %}
+
+
+{% extends "footer.html" %}
