@@ -15,6 +15,9 @@ class Receta(ndb.Model):
     # Nombre de la receta
     nombre = ndb.StringProperty()
 
+    # Nombre de la receta
+    descripcion = ndb.StringProperty()
+
     # Etiquetas de la receta
     etiquetas = ndb.StringProperty()
 
