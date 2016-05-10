@@ -7,33 +7,41 @@
 
           <!--   Icon Section   -->
         <div class="row">
-                <h3>Titulo de la receta</h3>
+                <h3>{{receta.nombre}}</h3>
         </div>
           <div class="row">
             <div class="col s12 m6">
-                <img class="responsive-img" src="Graficos/background1.jpg">
+                <img class="responsive-img" src="/view_photo?id={{receta.id_imagen}}">
             </div>
 
             <div class="col s12 m6">
                 <h5>Ingredientes</h5>
                 <p class="light">
-                {% for n in range(1,15) %}
 
-                    ingrediente numero {{n}}<br/>
+                    {% for i in Ingredientes %}
 
-                {% endfor %}
+                        <li>{{i.nombre}} {{i.cantidad}} ({{i.descripcion}})</li>
+
+                    {% endfor %}
+
                 </p>
             </div>
 
           </div>
 
           <div class="row">
-              <h5>Descripción de la receta</h5>
-              {% for n in range(1,30) %}
+              <div class="col s12 m6">
+                <h5>Descripción de la receta</h5>
+              {% for p in Pasos %}
+                {% if p.tiempo//60 != 0 %}
+                     <li>{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)</li>
+                {% else %}
+                    <li>{{p.descripcion}} ({{p.tiempo%60}} seg)</li>
+                {% endif %}
 
-              por no escribir un texto largo{{n}}
 
-                {% endfor %}
+              {% endfor %}
+              </div>
           </div>
 
         </div>
