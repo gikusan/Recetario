@@ -44,8 +44,15 @@ class Handler(webapp2.RequestHandler):
 class MainHandler(Handler):
     def get(self):
 
-        r = Receta.get_by_id(5752644836524032)
-        self.render("receta.html",
+        receta_key = self.request.get('id')
+
+        if not receta_key:
+            self.error(404)
+            self.response.write("Receta no encontrada")
+        else:
+            r = Receta.get_by_id(int(receta_key))
+
+            self.render("receta.html",
                     rol='Anonimo',
                     login='no',
                     receta=r,
