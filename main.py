@@ -44,7 +44,26 @@ class MainHandler(Handler):
         self.render("index.html", rol='Anonimo', login='no')
 
 
-app = webapp2.WSGIApplication([
-    ('/', MainHandler)
-], debug=True)
+class RecetaHandler(Handler):
+    def get(self):
+        self.render("receta.html", rol='Anonimo', login='no')
 
+
+class RegistroHandler(Handler):
+    def get(self):
+        self.render("registro.html", rol='Anonimo', login='no')
+
+
+class LoginHandler(Handler):
+    def get(self):
+        self.render("login.html", rol='Anonimo', login='no')
+
+
+class CatalogoHandler(Handler):
+    def get(self):
+        self.render("pcr.html", rol='Anonimo', login='no')
+
+app = webapp2.WSGIApplication([
+    ('/receta', RecetaHandler), ('/', MainHandler), ('/registro', RegistroHandler), ('/login', LoginHandler),
+    ('/catalogo', CatalogoHandler)
+], debug=True)
