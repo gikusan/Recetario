@@ -19,9 +19,11 @@ import os
 import jinja2
 
 from Estructuras.Recetas import Receta
+from BaseHandler import BaseHandler
+from Estructuras.Usuarios import Usuario
+from google.appengine.ext import blobstore
+from google.appengine.ext.webapp import blobstore_handlers
 
-
-from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'Plantillas')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
@@ -33,12 +35,35 @@ def render_str(template, **params):
     return t.render(params)
 
 
-class Handler(webapp2.RequestHandler):
+class Handler(BaseHandler):
     def render(self, template, **kw):
         self.response.out.write(render_str(template, **kw))
 
+
+    def render_upload(self, template, **kw):
+        upload_url = blobstore.create_upload_url('/receta/crear2')
+        self.response.out.write(render_str(template, **kw).format(upload_url))
+
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
+
+class RegisterHandler(Handler):
+    def get(self):
+
+        # Para probar
+        self.session['login']="periko"
+        self.session['rol']="Usuario"
+        if self.session.get('login') and self.session.get('rol'):
+            rol = self.session.get('rol')
+            if rol=="Anonimo":
+                self.write("No tienes permiso")
+            else:
+                self.render_upload("recetaformulario.html",
+                            rol=self.session.get('rol'),
+                            login=self.session.get('login')
+                )
+        else:
+            self.response.out.write("No tienes acceso")
 
 
 class MainHandler(Handler):
@@ -53,14 +78,48 @@ class MainHandler(Handler):
             r = Receta.get_by_id(int(receta_key))
 
             self.render("receta.html",
-                    rol='Anonimo',
-                    login='no',
-                    receta=r,
-                    Ingredientes=r.obtener_ingredientes(),
-                    Pasos=r.obtener_pasos())
+                        rol='Anonimo',
+                        login='no',
+                        receta=r,
+                        id = r.get_id(),
+                        Ingredientes=r.obtener_ingredientes(),
+                        Pasos=r.obtener_pasos())
+
+class ErrorHandler(Handler):
+    def get(self):
+        self.render("errores.html",
+                        rol='Usuario',
+                        login='no',
+                        message='Problemas con la subida de imagen o el titulo',
+                        )
+
+class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+    def post(self):
+        try:
+            upload_files = self.get_uploads('file')
+            blob_info = upload_files[0]
+
+            r = Receta(
+                nombre=self.request.get("nombre"),
+                blob_key= blob_info.key()
+            )
+
+            r.put()
+
+            self.response.out.write("HIEL")
+
+        except:
+            self.redirect('/receta/error')
 
 
+config = {}
+config['webapp2_extras.sessions'] = {
+    'secret_key': 'my-super-secret-key',
+}
 app = webapp2.WSGIApplication([
-    ('/receta', MainHandler)
-], debug=True)
+    ('/receta/ver', MainHandler),
+    ('/receta/crear', RegisterHandler),
+    ('/receta/crear2', PhotoUploadHandler),
+    ('/receta/error', ErrorHandler)
+],config=config, debug=True)
 

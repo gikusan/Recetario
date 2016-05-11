@@ -13,7 +13,7 @@ handlers:
 - url: /Graficos
   static_dir: Graficos
 
-- url: /receta
+- url: /receta/.*
   script: receta.app
 
 - url: /view_photo
