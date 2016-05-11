@@ -15,15 +15,8 @@ class Receta(ndb.Model):
     # Nombre de la receta
     nombre = ndb.StringProperty()
 
-    # Nombre de la receta
-    descripcion = ndb.StringProperty()
-
     # Etiquetas de la receta
     etiquetas = ndb.StringProperty()
-
-    # Clave para buscar la foto
-    blob_key = ndb.BlobKeyProperty()
-
 
     """
         Funcion para obtener directamente el id del objeto
@@ -39,8 +32,6 @@ class Receta(ndb.Model):
 
         p = Paso(descripcion=desc,tiempo=temp,orden=pos,id_receta=self.get_id())
         p.put()
-
-
 
     """
         Funcion para insertar un paso a partir de una receta
@@ -61,5 +52,5 @@ class Receta(ndb.Model):
         Funcion para obtener los ingredientes de la receta
     """
 
-    def obtener_ingredientes(self):
-        return Ingrediente.query(Ingrediente.id_receta == self.get_id())
+    def obtener_pasos(self):
+        return Paso.query(Paso.id_receta == self.get_id()).order(Paso.orden)

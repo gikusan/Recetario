@@ -39,13 +39,13 @@ class Handler(BaseHandler):
     def render(self, template, **kw):
         self.response.out.write(render_str(template, **kw))
 
-
     def render_upload(self, template, **kw):
         upload_url = blobstore.create_upload_url('/receta/crear2')
         self.response.out.write(render_str(template, **kw).format(upload_url))
 
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
+
 
 class RegisterHandler(Handler):
     def get(self):
@@ -85,6 +85,7 @@ class MainHandler(Handler):
                         Ingredientes=r.obtener_ingredientes(),
                         Pasos=r.obtener_pasos())
 
+
 class ErrorHandler(Handler):
     def get(self):
         self.render("errores.html",
@@ -92,6 +93,7 @@ class ErrorHandler(Handler):
                         login='no',
                         message='Problemas con la subida de imagen o el titulo',
                         )
+
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
@@ -108,7 +110,7 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
             self.response.out.write("HIEL")
 
-        except:
+    except:
             self.redirect('/receta/error')
 
 
