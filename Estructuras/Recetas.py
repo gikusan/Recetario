@@ -22,7 +22,8 @@ class Receta(ndb.Model):
     etiquetas = ndb.StringProperty()
 
     # Clave para buscar la foto
-    id_imagen = ndb.StringProperty()
+    blob_key = ndb.BlobKeyProperty()
+
 
     """
         Funcion para obtener directamente el id del objeto
@@ -38,6 +39,8 @@ class Receta(ndb.Model):
 
         p = Paso(descripcion=desc,tiempo=temp,orden=pos,id_receta=self.get_id())
         p.put()
+
+
 
     """
         Funcion para insertar un paso a partir de una receta
