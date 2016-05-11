@@ -15,8 +15,14 @@ class Receta(ndb.Model):
     # Nombre de la receta
     nombre = ndb.StringProperty()
 
+    # Nombre de la receta
+    descripcion = ndb.StringProperty()
+
     # Etiquetas de la receta
     etiquetas = ndb.StringProperty()
+
+    # Clave para buscar la foto
+    id_imagen = ndb.StringProperty()
 
     """
         Funcion para obtener directamente el id del objeto
@@ -52,5 +58,5 @@ class Receta(ndb.Model):
         Funcion para obtener los ingredientes de la receta
     """
 
-    def obtener_pasos(self):
-        return Paso.query(Paso.id_receta == self.get_id()).order(Paso.orden)
+    def obtener_ingredientes(self):
+        return Ingrediente.query(Ingrediente.id_receta == self.get_id())
