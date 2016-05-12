@@ -10,7 +10,7 @@ class Receta(ndb.Model):
     id_usuario = ndb.GenericProperty()
 
     # Id de la categoria a la que pertenece la receta
-    id_categoria = ndb.GenericProperty()
+    id_categoria = ndb.StringProperty()
 
     # Nombre de la receta
     nombre = ndb.StringProperty()
