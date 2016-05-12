@@ -1,15 +1,91 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container valign-wrapper">
     <div class="section">
         <div class="row">
-            <form action="{0}" method="POST" enctype="multipart/form-data">
-                Nombre: <input type="text" name="nombre">
-                Upload File: <input type="file" name="file"><br>
-                <input type="submit" name="submit" value="Submit">
+            <h3 class="thin"> Crea tu receta</h3>
+            <form action="%(url)s" method="POST" enctype="multipart/form-data" class="card-panel" style="padding:50px">
+                <div class="row">
+                    <div class="col s12 m5">
+                        <input placeholder="Escribe el titulo de la recea aqui" type="text" name="nombre"/>
+                        <img class="responsive-img center-align" id="img" src="/Graficos/help.png"/>
+                        <div class="file-field input-field">
+                            <div class="btn">
+                                <span>Imagen</span>
+                                <input id="file" type="file" name="file">
+                            </div>
+                            <div class="file-path-wrapper">
+                                <input class="file-path validate" type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s0 m1"><p></p></div>
+                    <div class="col s12 m6 right-align">
+                        <div class="card-panel teal">
+                       <span class="white-text">
+                             <h2 class="thin flow-text center-align">En el siguiente paso podras añadir los ingredientes aqui</h2>
+                       </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s0 m1"><p></p></div>
+                        <div class="input-field col s12 m5">
+                            <select name="categoria">
+                                <option value="" disabled selected>Elige categoria</option>
+                                <option value="Entrantes">Entrantes</option>
+                                <option value="Snack">Snack</option>
+                                <option value="Primeros">Primeros</option>
+                                <option value="Segundos">Segundos</option>
+                                <option value="Postres">Postres</option>
+                            </select>
+                            <label>Tipo de receta</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row valign-wrapper">
+                    <div class="input-field col s12">
+                        <textarea id="textarea3" class="materialize-textarea" length="500" name="descripcion"></textarea>
+                        <label for="textarea3">Descripción</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6">
+                        <input id="tags" type="text" name="tags" value="Etiqueta1,Etiqueta2,....,..,">
+                        <label for="tags">Etiquetas</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="btn-floating waves-effect waves-light right btn-large red tooltipped" data-position="left" data-delay="10" data-tooltip="Ir al paso 2" type="submit" name="submit">
+                        <i class="material-icons">send</i>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 </div>
+{% block script %}
+<script>
+    $(document).ready(function() {
+        $('select').material_select();
+    });
+
+function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#img').attr('src', e.target.result);
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+$("#file").change(function(){
+    readURL(this);
+});
+</script>
+
+{% endblock %}
 {% endblock %}

@@ -42,29 +42,20 @@ class Handler(BaseHandler):
 
     def render_upload(self, template, **kw):
         upload_url = blobstore.create_upload_url('/receta/crear2')
-        self.response.out.write(render_str(template, **kw).format(upload_url))
-
+        self.response.out.write(render_str(template, **kw) % {'url': upload_url})
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
 
 class RegisterHandler(Handler):
     def get(self):
-
-        # Para probar
-        self.session['login']="periko"
-        self.session['rol']="Usuario"
-        if self.session.get('login') and self.session.get('rol'):
-            rol = self.session.get('rol')
-            if rol=="Anonimo":
-                self.write("No tienes permiso")
-            else:
-                self.render_upload("recetaformulario.html",
-                            rol=self.session.get('rol'),
-                            login=self.session.get('login')
-                )
+        rol = "Usuario"
+        if rol=="Anonimo":
+            self.write("No tienes permiso")
         else:
-            self.response.out.write("No tienes acceso")
-
+            self.render_upload("recetaformulario.html",
+                               rol='Usuario',
+                               login='no'
+                               )
 
 class MainHandler(Handler):
     def get(self):
@@ -101,17 +92,38 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
             r = Receta(
                 nombre=self.request.get("nombre"),
+                descripcion = self.request.get("descripcion"),
+                etiquetas = self.request.get("tags"),
+                id_categoria = self.request.get("categoria"),
                 blob_key= blob_info.key()
             )
 
             r.put()
 
-            self.response.out.write("HIEL")
+
+            self.redirect('/receta/editar?id=%s' % r.get_id())
 
         except:
             self.redirect('/receta/error')
 
+class EditHandler(Handler):
+    def get(self):
 
+        receta_key = self.request.get('id')
+
+        if not receta_key:
+            self.error(404)
+            self.response.write("Receta no encontrada")
+        else:
+            r = Receta.get_by_id(int(receta_key))
+
+            self.render("receta.html",
+                        rol='Anonimo',
+                        login='no',
+                        receta=r,
+                        id = r.get_id(),
+                        Ingredientes=r.obtener_ingredientes(),
+                        Pasos=r.obtener_pasos())
 config = {}
 config['webapp2_extras.sessions'] = {
     'secret_key': 'my-super-secret-key',
@@ -120,6 +132,7 @@ app = webapp2.WSGIApplication([
     ('/receta/ver', MainHandler),
     ('/receta/crear', RegisterHandler),
     ('/receta/crear2', PhotoUploadHandler),
+    ('/receta/editar', EditHandler),
     ('/receta/error', ErrorHandler)
 ],config=config, debug=True)
 
