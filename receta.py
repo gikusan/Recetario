@@ -72,6 +72,7 @@ class MainHandler(Handler):
                         rol='Anonimo',
                         login='no',
                         receta=r,
+                        editar='false',
                         id = r.get_id(),
                         Ingredientes=r.obtener_ingredientes(),
                         Pasos=r.obtener_pasos())
@@ -121,6 +122,7 @@ class EditHandler(Handler):
                         rol='Anonimo',
                         login='no',
                         receta=r,
+                        editar='true',
                         id = r.get_id(),
                         Ingredientes=r.obtener_ingredientes(),
                         Pasos=r.obtener_pasos())
