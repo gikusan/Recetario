@@ -7,6 +7,12 @@ class Usuario(ndb.Model):
     # Nick del usuario
     nick = ndb.StringProperty()
 
+    # Nombre del usuario
+    name = ndb.StringProperty()
+
+    # Apellido del usuario
+    surname = ndb.StringProperty()
+
     # Password del usuario
     password = ndb.StringProperty()
 
@@ -37,5 +43,3 @@ class Usuario(ndb.Model):
     def get_id_as_str(self):
 
         return self.key.id().__str__
-
-

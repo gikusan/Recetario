@@ -137,4 +137,3 @@ app = webapp2.WSGIApplication([
     ('/receta/editar', EditHandler),
     ('/receta/error', ErrorHandler)
 ],config=config, debug=True)
-
