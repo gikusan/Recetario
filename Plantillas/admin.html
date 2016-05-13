@@ -1,0 +1,48 @@
+{%extends "base.html"%}
+
+{%block content%}
+
+<div class="row">
+    <div class="col m2 red">
+<p></p>
+    </div>
+
+    <div class="col m10">
+        <div class="container">
+            <div class="section">
+                  <ul class="collapsible popout" data-collapsible="accordion">
+                    <li class="collection-item avatar">
+
+                      <div class="collapsible-header"><i class="material-icons">perm_identity</i>Juanito ferreiro</div>
+                      <div class="collapsible-body">
+                          <div class="row">
+                            <!-- Switch -->
+                              <div class="switch" style="padding-left: 28px; padding-top:28px;">
+                              Estado Usuario
+                                <label style="padding-left: 28px;">
+                                  Off
+                                  <input type="checkbox">
+                                  <span class="lever"></span>
+                                  On
+                                </label>
+                              </div>
+                              <div></div>
+                          </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="collapsible-header"><i class="material-icons">place</i>Second</div>
+                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+                    </li>
+                    <li>
+                      <div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
+                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+                    </li>
+                  </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock%}
