@@ -11,6 +11,10 @@ nav .brand-logo {
   color: #444;
 }
 
+.introdiv{
+    background-image:url("/Graficos/background1.jpg");
+    height: 500px;
+}
 p {
   line-height: 2rem;
 }
