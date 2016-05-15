@@ -19,8 +19,14 @@ handlers:
 - url: /view_photo
   script: fotos.app
 
-- url: /register
+- url: /registro
   script: register.app
+
+- url: /login
+  script: login.app
+
+- url: /logout
+  script: login.app
 - url: .*
   script: main.app
 
