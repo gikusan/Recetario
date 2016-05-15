@@ -28,6 +28,9 @@ class Usuario(ndb.Model):
     # Usuario activado o no
     activado = ndb.BooleanProperty()
 
+    # rol
+    rol = ndb.StringProperty()
+
     # Fecha de registro del usuario
     date = ndb.DateTimeProperty(auto_now_add=True)
 
@@ -43,3 +46,10 @@ class Usuario(ndb.Model):
     def get_id_as_str(self):
 
         return self.key.id().__str__
+
+    """
+        Funcion que devuelve activado
+    """
+    def get_activado(self):
+
+        return self.activado.id()

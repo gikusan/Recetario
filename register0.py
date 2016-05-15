@@ -162,7 +162,6 @@ class Register(Handler):
                 u.password=user_password
                 u.name= user_name
                 u.surname = user_surname
-                u.rol = "invitado"
                 u.put()
                 self.render("errores.html",
                                 rol='Usuario',
@@ -191,5 +190,5 @@ config['webapp2_extras.sessions'] = {
     'secret_key': 'my-super-secret-key',
 }
 app = webapp2.WSGIApplication([
-    ('/registro', Register)
+    ('/register', Register)
     ],config=config, debug=True)
