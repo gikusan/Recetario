@@ -63,14 +63,9 @@ class Login(Handler):
 
         user=Usuario.query(Usuario.nick==user_username and Usuario.password==user_password).get()
         if user:
+            #Usuario encontrado
             if user.activado:
-                #Usuario sin activar
-                self.write(render_str("login.html") % {"username" :sani_username,
-                "password" : "",
-                "username_error" : "El usuario no esta activado"})
-            else:
-                #Usuario encontrado, loguearlo
-                #env.globals['username'] = sani_username # Your session
+                #Usuario activado
                 self.session['rol'] = user.rol
                 self.session['username'] = sani_username
                 self.render("errores.html",
@@ -78,6 +73,12 @@ class Login(Handler):
                                 login='no',
                                 message = sani_username+' logueado correctamente',
                                 )
+            else:
+                #Usuario sin activar
+                self.write(render_str("login.html") % {"username" :sani_username,
+                "password" : "",
+                "username_error" : user.activado})
+
         else:
             #No se encontro al usuario
             self.write(render_str("login.html") % {"username" :sani_username,
