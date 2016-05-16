@@ -31,7 +31,7 @@ class Logout(Handler):
         for k in self.session.keys():
             del self.session[k]
         self.render("errores.html",
-                        rol='Usuario',
+                        rol='Anonimo',
                         login='no',
                         message= 'Hasta pronto',
                         )
@@ -47,7 +47,7 @@ class Login(Handler):
                             message= self.session.get('username')+ ' ya estas logueado',
                             )
         else:
-            self.write(render_str("login.html") % {"username" :username,
+            self.write(render_str("login.html",rol='Anonimo', login='no') % {"username" :username,
                 "password" : password,
                 "username_error" : username_error}
                 )
@@ -74,8 +74,8 @@ class Login(Handler):
                 self.session['rol'] = user.rol
                 self.session['username'] = sani_username
                 self.render("errores.html",
-                                rol='Usuario',
-                                login='no',
+                                rol=user.rol,
+                                login='si',
                                 message = sani_username+' logueado correctamente',
                                 )
         else:
