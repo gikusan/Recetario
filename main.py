@@ -18,8 +18,7 @@ import webapp2
 import os
 import jinja2
 
-
-from google.appengine.ext import db
+from session_module import BaseSessionHandler
 
 template_dir = os.path.join(os.path.dirname(__file__), 'Plantillas')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
@@ -31,7 +30,7 @@ def render_str(template, **params):
     return t.render(params)
 
 
-class Handler(webapp2.RequestHandler):
+class Handler(BaseSessionHandler):
     def render(self, template, **kw):
         self.response.out.write(render_str(template, **kw))
 
@@ -41,29 +40,69 @@ class Handler(webapp2.RequestHandler):
 
 class MainHandler(Handler):
     def get(self):
-        self.render("index.html", rol='Anonimo', login='no')
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        login="no"
+        if usuario:
+            login = "si"
+        if not rol:
+            rol = "Anonimo"
+        self.render("index.html", rol=rol, login=login)
 
 
 class RecetaHandler(Handler):
     def get(self):
-        self.render("receta.html", rol='Anonimo', login='no')
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        login="no"
+        if usuario:
+            login = "si"
+        if not rol:
+            rol = "Anonimo"
+        self.render("receta.html", rol=rol, login=login)
 
 
 class RegistroHandler(Handler):
     def get(self):
-        self.render("registro.html", rol='Anonimo', login='no')
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        login="no"
+        if usuario:
+            login = "si"
+        if not rol:
+            rol = "Anonimo"
+        self.render("registro.html", rol=rol, login=login)
 
 
 class LoginHandler(Handler):
     def get(self):
-        self.render("login.html", rol='Anonimo', login='no')
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        login="no"
+        if usuario:
+            login = "si"
+        if not rol:
+            rol = "Anonimo"
+        self.render("login.html", rol=rol, login=login)
 
 
 class CatalogoHandler(Handler):
     def get(self):
-        self.render("pcr.html", rol='Anonimo', login='no')
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        login="no"
+        if usuario:
+            login = "si"
+        if not rol:
+            rol = "Anonimo"
+        self.render("pcr.html", rol=rol, login=login)
+
+config = {}
+config['webapp2_extras.sessions'] = {
+    'secret_key': 'my-super-secret-key',
+}
 
 app = webapp2.WSGIApplication([
     ('/receta', RecetaHandler), ('/', MainHandler), ('/registro', RegistroHandler), ('/login', LoginHandler),
     ('/catalogo', CatalogoHandler)
-], debug=True)
+], config=config,debug=True)

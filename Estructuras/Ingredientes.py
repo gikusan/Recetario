@@ -23,3 +23,11 @@ class Ingrediente(ndb.Model):
     def get_id(self):
 
         return self.key.id()
+
+    """
+        Funcion para eliminar
+    """
+
+    def delete(self):
+
+        return self.key.delete()
