@@ -126,12 +126,8 @@ class Register(Handler):
                 u.password=user_password
                 u.name= user_name
                 u.surname = user_surname
-<<<<<<< HEAD
                 u.activado = False
                 u.rol = "invitado"
-=======
-                u.rol = "Usuario"
->>>>>>> master
                 u.put()
                 self.render("errores.html",
                                 rol='Usuario',

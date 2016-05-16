@@ -75,13 +75,13 @@ class Login(Handler):
                                 )
             else:
                 #Usuario sin activar
-                self.write(render_str("login.html") % {"username" :sani_username,
+                self.write(render_str("login.html",rol='Anonimo', login='no') % {"username" :sani_username,
                 "password" : "",
                 "username_error" : user.activado})
 
         else:
             #No se encontro al usuario
-            self.write(render_str("login.html") % {"username" :sani_username,
+            self.write(render_str("login.html",rol='Anonimo', login='no') % {"username" :sani_username,
             "password" : "",
             "username_error" : "No existe dicha combinacion de usuario y password"})
 
