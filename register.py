@@ -69,7 +69,7 @@ class Register(Handler):
         #self.write_form()
         #self.render_str("registro.html")
 
-        self.write(render_str("registro.html") % {"username" :username,
+        self.write(render_str("registro.html",rol="Anonimo", login="no") % {"username" :username,
         "password" : password,
         "verify" : verify,
         "email" : email,
@@ -141,7 +141,7 @@ class Register(Handler):
 
 
         if error:
-            self.write(render_str("registro.html") % {"username" :sani_username,
+            self.write(render_str("registro.html", rol="Anonimo", login="no") % {"username" :sani_username,
             "password" : sani_password,
             "verify" : sani_verify,
             "email" : sani_email,
