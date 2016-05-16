@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # ==========
 
-#Import sessions for session handling
+# Import sessions for session handling
 import webapp2
 from webapp2_extras import sessions
-
-#This is needed to configure the session secret key
-#Runs first in the whole application
+# This is needed to configure the session secret key
+# Runs first in the whole application
 myconfig_dict = {}
 myconfig_dict['webapp2_extras.sessions'] = {
   'secret_key': 'aegoradhfgnfiosgbnodfngs',

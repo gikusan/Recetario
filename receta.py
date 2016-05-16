@@ -51,13 +51,13 @@ class Handler(BaseHandler):
 
 class RegisterHandler(Handler):
     def get(self):
-        rol = "Usuario"
-        if rol=="Anonimo":
+        rol = self.session.get('rol')
+        if rol == "Anonimo":
             self.write("No tienes permiso")
         else:
             self.render_upload("recetaformulario.html",
-                               rol='Usuario',
-                               login='no'
+                               rol=rol,
+                               login='si'
                                )
 
 
@@ -117,6 +117,7 @@ class AddPasoHandler(Handler):
         except ValueError:
             self.write(ValueError)
 
+
 class RemovePasoHandler(Handler):
     def post(self):
         try:
@@ -131,10 +132,15 @@ class RemovePasoHandler(Handler):
         except ValueError:
             self.write(ValueError)
 
+
 class MainHandler(Handler):
     def get(self):
-
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        login = "no"
         receta_key = self.request.get('id')
+        if usuario:
+            login = "si"
 
         if not receta_key:
             self.error(404)
@@ -143,11 +149,11 @@ class MainHandler(Handler):
             r = Receta.get_by_id(int(receta_key))
             if r:
                 self.render("receta.html",
-                            rol='Anonimo',
-                            login='no',
+                            rol=rol,
+                            login=login,
                             receta=r,
                             editar='false',
-                            id = r.get_id(),
+                            id=r.get_id(),
                             Ingredientes=r.obtener_ingredientes(),
                             Pasos=r.obtener_pasos())
             else:
@@ -156,9 +162,15 @@ class MainHandler(Handler):
 
 class ErrorHandler(Handler):
     def get(self):
+
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+
+        if usuario:
+            login = "si"
         self.render("errores.html",
-                    rol='Usuario',
-                    login='no',
+                    rol=rol,
+                    login=login,
                     message='Problemas con la subida de imagen o el titulo',
                     )
 
@@ -166,9 +178,9 @@ class ErrorHandler(Handler):
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         try:
+
             upload_files = self.get_uploads('file')
             blob_info = upload_files[0]
-
             r = Receta(
                 nombre=self.request.get("nombre"),
                 num_pasos=0,
@@ -182,43 +194,82 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
             self.redirect('/receta/editar?id=%s' % r.get_id())
 
-        except:
-            self.redirect('/receta/error')
+        except ValueError:
+            self.write(ValueError)
 
 
 class EditHandler(Handler):
     def get(self):
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        if usuario:
 
-        receta_key = self.request.get('id')
+            u = Usuario.query(Usuario.nick == usuario).fetch()[0]
 
-        if not receta_key:
-            self.error(404)
-            self.response.write("Receta no encontrada")
+            receta_key = self.request.get('id')
+
+            if not receta_key:
+                self.error(404)
+                self.response.write("Receta no encontrada")
+            else:
+                r = Receta.get_by_id(int(receta_key))
+                if not r.id_usuario:
+                    r.id_usuario = u.get_id()
+                    r.put()
+                else:
+                    if r.id_usuario!=u.get_id :
+                        self.render("errores.html",
+                            rol=rol,
+                            login="si",
+                            message='No puedes editar recetas que no te pertenezcan',
+                            )
+
+                self.render("receta.html",
+                            rol='Anonimo',
+                            login='no',
+                            receta=r,
+                            editar='true',
+                            id = r.get_id(),
+                            Ingredientes=r.obtener_ingredientes(),
+                            Pasos=r.obtener_pasos())
         else:
-            r = Receta.get_by_id(int(receta_key))
-
-            self.render("receta.html",
-                        rol='Anonimo',
-                        login='no',
-                        receta=r,
-                        editar='true',
-                        id = r.get_id(),
-                        Ingredientes=r.obtener_ingredientes(),
-                        Pasos=r.obtener_pasos())
-
+            self.redirect("/")
 
 class RecetasAllHandler(Handler):
     def get(self):
-
+        login = "no"
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        if usuario:
+            login = "si"
         recetas = Receta.query().fetch()
-        self.render("pcr.html", rol='Anonimo', login='no', recetas=recetas)
+        self.render("pcr.html", rol=rol, login=login, recetas=recetas)
+
+
+class RecetasPropiasHandler(Handler):
+    def get(self):
+        login = "no"
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        if usuario:
+            login = "si"
+        u = Usuario.query(Usuario.nick == usuario).fetch()[0]
+
+        recetas = Receta.query(Receta.id_usuario==u.get_id()).fetch()
+
+        self.render("pcr.html", rol=rol, login=login, recetas=recetas)
 
 
 class RecetasCategoriaHandler(Handler):
     def get(self):
+        login = "no"
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        if usuario:
+            login = "si"
         categoria = self.request.get('categoria')
         recetas = Receta.query(Receta.id_categoria == categoria).fetch()
-        self.render("pcr.html", rol='Anonimo', login='no', recetas=recetas)
+        self.render("pcr.html", rol=rol, login=login, recetas=recetas)
 
 
 config = {}
@@ -236,6 +287,7 @@ app = webapp2.WSGIApplication([
     ('/receta/addPas', AddPasoHandler),
     ('/receta/lista', RecetasAllHandler),
     ('/receta/delPas', RemovePasoHandler),
+    ('/receta/propias', RecetasPropiasHandler),
     ('/receta/categoria', RecetasCategoriaHandler)
 ], config=config, debug=True)
 
