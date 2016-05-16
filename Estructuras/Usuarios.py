@@ -7,6 +7,12 @@ class Usuario(ndb.Model):
     # Nick del usuario
     nick = ndb.StringProperty()
 
+    # Nombre del usuario
+    name = ndb.StringProperty()
+
+    # Apellido del usuario
+    surname = ndb.StringProperty()
+
     # Password del usuario
     password = ndb.StringProperty()
 
@@ -21,6 +27,9 @@ class Usuario(ndb.Model):
 
     # Usuario activado o no
     activado = ndb.BooleanProperty()
+
+    # rol
+    rol = ndb.StringProperty()
 
     # Fecha de registro del usuario
     date = ndb.DateTimeProperty(auto_now_add=True)
@@ -38,4 +47,9 @@ class Usuario(ndb.Model):
 
         return self.key.id().__str__
 
+    """
+        Funcion que devuelve activado
+    """
+    def get_activado(self):
 
+        return self.activado.id()

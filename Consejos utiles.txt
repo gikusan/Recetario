@@ -25,3 +25,10 @@ Recorrer un arrays:
 
     for pa in p.obtener_pasos():
         self.response.write(pa.descripcion+"<br/>")
+
+-------------------------------------------------------------------------------------
+
+Para obtener el username y el rol del usuario logueado:
+
+variable1 = self.session.get('username')
+variable2 = self.session('rol')

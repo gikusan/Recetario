@@ -24,6 +24,9 @@ class Receta(ndb.Model):
     # Clave para buscar la foto
     blob_key = ndb.BlobKeyProperty()
 
+    # Para controlar el numero de pasos
+    num_pasos = ndb.IntegerProperty()
+
 
     """
         Funcion para obtener directamente el id del objeto
@@ -35,11 +38,12 @@ class Receta(ndb.Model):
     """
         Funcion para insertar un paso a partir de una receta
     """
-    def insertar_paso(self,desc,temp,pos):
+    def insertar_paso(self,desc,temp):
 
-        p = Paso(descripcion=desc,tiempo=temp,orden=pos,id_receta=self.get_id())
+        p = Paso(descripcion=desc,tiempo=temp,orden=self.num_pasos,id_receta=self.get_id())
+        self.num_pasos += 1
         p.put()
-
+        self.put()
 
 
     """

@@ -56,6 +56,39 @@ class RegisterHandler(Handler):
                                rol='Usuario',
                                login='no'
                                )
+class AddInstructionHandler(Handler):
+    def post(self):
+        try:
+            receta_key = self.request.get('id')
+            nombre = self.request.get('nombre')
+            cantidad = self.request.get('cantidad')
+            descripcion = self.request.get('descripcion')
+            r = Receta.get_by_id(int(receta_key))
+            if r:
+                r.insertar_ingrediente(nombre, cantidad, descripcion)
+                self.write("OK")
+            else:
+                self.write("ERROR")
+
+        except:
+            self.write("NO OK")
+
+class AddPasoHandler(Handler):
+    def post(self):
+        try:
+            receta_key = self.request.get('id')
+            tiempo = int(self.request.get('tiempo'))
+            descripcion = self.request.get('descripcion')
+            r = Receta.get_by_id(int(receta_key))
+            if r:
+                r.insertar_paso(descripcion, tiempo)
+                self.write("OK")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
+
 
 class MainHandler(Handler):
     def get(self):
@@ -67,22 +100,27 @@ class MainHandler(Handler):
             self.response.write("Receta no encontrada")
         else:
             r = Receta.get_by_id(int(receta_key))
+            if r:
+                self.render("receta.html",
+                            rol='Anonimo',
+                            login='no',
+                            receta=r,
+                            editar='false',
+                            id = r.get_id(),
+                            Ingredientes=r.obtener_ingredientes(),
+                            Pasos=r.obtener_pasos())
+            else:
+                self.response.write("Receta no encontrada")
 
-            self.render("receta.html",
-                        rol='Anonimo',
-                        login='no',
-                        receta=r,
-                        id = r.get_id(),
-                        Ingredientes=r.obtener_ingredientes(),
-                        Pasos=r.obtener_pasos())
 
 class ErrorHandler(Handler):
     def get(self):
         self.render("errores.html",
-                        rol='Usuario',
-                        login='no',
-                        message='Problemas con la subida de imagen o el titulo',
-                        )
+                    rol='Usuario',
+                    login='no',
+                    message='Problemas con la subida de imagen o el titulo',
+                    )
+
 
 class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
@@ -92,10 +130,11 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
             r = Receta(
                 nombre=self.request.get("nombre"),
-                descripcion = self.request.get("descripcion"),
-                etiquetas = self.request.get("tags"),
-                id_categoria = self.request.get("categoria"),
-                blob_key= blob_info.key()
+                num_pasos=0,
+                descripcion=self.request.get("descripcion"),
+                etiquetas=self.request.get("tags"),
+                id_categoria=self.request.get("categoria"),
+                blob_key=blob_info.key()
             )
 
             r.put()
@@ -121,6 +160,7 @@ class EditHandler(Handler):
                         rol='Anonimo',
                         login='no',
                         receta=r,
+                        editar='true',
                         id = r.get_id(),
                         Ingredientes=r.obtener_ingredientes(),
                         Pasos=r.obtener_pasos())
@@ -133,6 +173,8 @@ app = webapp2.WSGIApplication([
     ('/receta/crear', RegisterHandler),
     ('/receta/crear2', PhotoUploadHandler),
     ('/receta/editar', EditHandler),
-    ('/receta/error', ErrorHandler)
+    ('/receta/error', ErrorHandler),
+    ('/receta/addIns',AddInstructionHandler),
+    ('/receta/addPas', AddPasoHandler)
 ],config=config, debug=True)
 
