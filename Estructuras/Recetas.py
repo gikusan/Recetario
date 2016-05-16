@@ -27,7 +27,6 @@ class Receta(ndb.Model):
     # Para controlar el numero de pasos
     num_pasos = ndb.IntegerProperty()
 
-
     """
         Funcion para obtener directamente el id del objeto
     """
