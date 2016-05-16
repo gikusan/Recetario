@@ -30,8 +30,7 @@ class Handler(BaseHandler):
 class Register(Handler):
 
     def get(self, username="", password="", verify="",email="", username_error="", password_error="",verify_error="", email_error="",name="",surname="",name_error="",surname_error=""):
-        #self.write_form()
-        #self.render_str("registro.html")
+        
 
         self.write(render_str("registro.html",rol="Anonimo", login="no") % {"username" :username,
         "password" : password,
