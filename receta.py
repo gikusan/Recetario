@@ -21,6 +21,8 @@ import jinja2
 from Estructuras.Recetas import Receta
 from BaseHandler import BaseHandler
 from Estructuras.Usuarios import Usuario
+from Estructuras.Ingredientes import Ingrediente
+from Estructuras.Pasos import Paso
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 
@@ -39,12 +41,13 @@ class Handler(BaseHandler):
     def render(self, template, **kw):
         self.response.out.write(render_str(template, **kw))
 
-
     def render_upload(self, template, **kw):
         upload_url = blobstore.create_upload_url('/receta/crear2')
         self.response.out.write(render_str(template, **kw) % {'url': upload_url})
+
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
+
 
 class RegisterHandler(Handler):
     def get(self):
@@ -56,6 +59,8 @@ class RegisterHandler(Handler):
                                rol='Usuario',
                                login='no'
                                )
+
+
 class AddInstructionHandler(Handler):
     def post(self):
         try:
@@ -63,25 +68,27 @@ class AddInstructionHandler(Handler):
             nombre = self.request.get('nombre')
             cantidad = self.request.get('cantidad')
             descripcion = self.request.get('descripcion')
-            r = Receta.get_by_id(int(receta_key))
-            if r:
-                r.insertar_ingrediente(nombre, cantidad, descripcion)
-                self.write("OK")
+
+            if nombre != "" and cantidad != " ":
+                r = Receta.get_by_id(int(receta_key))
+                if r:
+                    r.insertar_ingrediente(nombre, cantidad, descripcion)
+                    self.write("OK")
+                else:
+                    self.write("ERROR")
             else:
                 self.write("ERROR")
+        except ValueError:
+            self.write(ValueError)
 
-        except:
-            self.write("NO OK")
 
-class AddPasoHandler(Handler):
+class RemoveInstructionHandler(Handler):
     def post(self):
         try:
-            receta_key = self.request.get('id')
-            tiempo = int(self.request.get('tiempo'))
-            descripcion = self.request.get('descripcion')
-            r = Receta.get_by_id(int(receta_key))
-            if r:
-                r.insertar_paso(descripcion, tiempo)
+            ingrediente_key = self.request.get('id')
+            i = Ingrediente.get_by_id(int(ingrediente_key))
+            if i:
+                i.delete()
                 self.write("OK")
             else:
                 self.write("ERROR")
@@ -89,6 +96,40 @@ class AddPasoHandler(Handler):
         except ValueError:
             self.write(ValueError)
 
+
+class AddPasoHandler(Handler):
+    def post(self):
+        try:
+            receta_key = self.request.get('id')
+            tiempo = int(self.request.get('tiempo'))
+            descripcion = self.request.get('descripcion')
+
+            if descripcion != "" and tiempo > 0:
+                r = Receta.get_by_id(int(receta_key))
+                if r:
+                    r.insertar_paso(descripcion, tiempo)
+                    self.write("OK")
+                else:
+                    self.write("ERROR")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
+
+class RemovePasoHandler(Handler):
+    def post(self):
+        try:
+            paso_key = self.request.get('id')
+            p = Paso.get_by_id(int(paso_key))
+            if p:
+                p.delete()
+                self.write("OK")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
 
 class MainHandler(Handler):
     def get(self):
@@ -139,11 +180,11 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
             r.put()
 
-
             self.redirect('/receta/editar?id=%s' % r.get_id())
 
         except:
             self.redirect('/receta/error')
+
 
 class EditHandler(Handler):
     def get(self):
@@ -164,6 +205,22 @@ class EditHandler(Handler):
                         id = r.get_id(),
                         Ingredientes=r.obtener_ingredientes(),
                         Pasos=r.obtener_pasos())
+
+
+class RecetasAllHandler(Handler):
+    def get(self):
+
+        recetas = Receta.query().fetch()
+        self.render("pcr.html", rol='Anonimo', login='no', recetas=recetas)
+
+
+class RecetasCategoriaHandler(Handler):
+    def get(self):
+        categoria = self.request.get('categoria')
+        recetas = Receta.query(Receta.id_categoria == categoria).fetch()
+        self.render("pcr.html", rol='Anonimo', login='no', recetas=recetas)
+
+
 config = {}
 config['webapp2_extras.sessions'] = {
     'secret_key': 'my-super-secret-key',
@@ -174,7 +231,11 @@ app = webapp2.WSGIApplication([
     ('/receta/crear2', PhotoUploadHandler),
     ('/receta/editar', EditHandler),
     ('/receta/error', ErrorHandler),
-    ('/receta/addIns',AddInstructionHandler),
-    ('/receta/addPas', AddPasoHandler)
-],config=config, debug=True)
+    ('/receta/addIns', AddInstructionHandler),
+    ('/receta/delIns', RemoveInstructionHandler),
+    ('/receta/addPas', AddPasoHandler),
+    ('/receta/lista', RecetasAllHandler),
+    ('/receta/delPas', RemovePasoHandler),
+    ('/receta/categoria', RecetasCategoriaHandler)
+], config=config, debug=True)
 
