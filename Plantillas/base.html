@@ -20,7 +20,7 @@
         <div class="nav-wrapper container">
           <a id="logo-container" href="/" class="brand-logo">  <i id="icon" >LOGO</i>  </a>
           <ul class="right hide-on-med-and-down">
-            {% if usrname is not defined%}
+            {% if login == 'no' %}
               <li><a href="/login">Login</a></li>
               <li><a href="/registro">Registro</a></li>
             {% else %}
@@ -32,17 +32,23 @@
               <a class='dropdown-button' href='#' data-activates='dropdown1'>Recetario</a>
                 <ul id='dropdown1' class='dropdown-content'>
                  <li><a href="#!"></a></li>
-                 <li><a href="catalogo">Todas</a></li>
+                 <li><a href="/receta/lista">Todas</a></li>
                  <li class="divider"></li>
-                 <li><a href="#!">Entrantes</a></li>
-                 <li><a href="#!">Snack</a></li>
-                 <li><a href="#!">Primeros</a></li>
-                 <li><a href="#!">Segundos</a></li>
-                 <li><a href="#!">Postres</a></li>
+                 <li><a href="/receta/categoria?categoria=Entrantes">Entrantes</a></li>
+                 <li><a href="/receta/categoria?categoria=Snack">Snack</a></li>
+                 <li><a href="/receta/categoria?categoria=Primeros">Primeros</a></li>
+                 <li><a href="/receta/categoria?categoria=Segundos">Segundos</a></li>
+                 <li><a href="/receta/categoria?categoria=Postres">Postres</a></li>
                 </ul>
             {% endif %}
             {% if rol == 'Usuario' or rol == 'Admin'%}
-             <li><a href="#">Mis recetas</a></li>
+              <a class='dropdown-button' href='#' data-activates='dropdown3'>Mis Recetas</a>
+                <ul id='dropdown3' class='dropdown-content'>
+                 <li><a href="#!"></a></li>
+                 <li><a href="/receta/stored">Guardadas</a></li>
+                 <li><a href="/receta/propias">Mis creaciones</a></li>
+                 <li><a href="/receta/crear">Añadir Receta</a></li>
+                </ul>
             {% endif %}
             {% if rol == 'Admin' %}
              <li><a href="#">Administración</a></li>
@@ -51,7 +57,7 @@
           </ul>
 
           <ul id="nav-mobile" class="side-nav">
- {% if login == 'no' %}
+            {% if login == 'no' %}
               <li><a href="/login">Login</a></li>
               <li><a href="/registro">Registro</a></li>
             {% else %}
@@ -63,7 +69,7 @@
               <a class='dropdown-button' href='#' data-activates='dropdown2'>Recetario</a>
                 <ul id='dropdown2' class='dropdown-content'>
                  <li><a href="#!"></a></li>
-                 <li><a href="catalogo">Todas</a></li>
+                 <li><a href="/receta/lista">Todas</a></li>
                  <li class="divider"></li>
                  <li><a href="#!">Entrantes</a></li>
                  <li><a href="#!">Snack</a></li>

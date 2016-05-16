@@ -162,7 +162,7 @@ class Register(Handler):
                 u.password=user_password
                 u.name= user_name
                 u.surname = user_surname
-                u.rol = "invitado"
+                u.rol = "Usuario"
                 u.put()
                 self.render("errores.html",
                                 rol='Usuario',
