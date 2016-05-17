@@ -33,8 +33,35 @@ template_dir = os.path.join(os.path.dirname(__file__), 'Plantillas')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
 
+"""
+    Funcion para coincidencias
+"""
 
 
+def buscar_contenido(parametro1, parametro2, parametro3, busqueda):
+    if busqueda in parametro1:
+        return True
+    elif busqueda in parametro2:
+        return True
+    elif busqueda in parametro3:
+        return True
+    else:
+        return False
+
+
+"""
+    Funcion para buscar
+"""
+
+
+def buscar_recetas(busqueda):
+    resultado = []
+    recetas = Receta.query().fetch()
+    for r in recetas:
+        if buscar_contenido(r.id_categoria, r.etiquetas, r.nombre, busqueda):
+            print(r.nombre)
+            resultado.append(r)
+    return resultado
 
 
 def render_str(template, **params):
@@ -230,22 +257,21 @@ class EditHandler(Handler):
                 if not r.id_usuario:
                     r.id_usuario = u.get_id()
                     r.put()
-                else:
-                    if r.id_usuario!=u.get_id :
+                elif r.id_usuario!=u.get_id :
                         self.render("errores.html",
                             rol=rol,
                             login="si",
                             message='No puedes editar recetas que no te pertenezcan',
                             )
-
-                self.render("receta.html",
-                            rol='Anonimo',
-                            login='no',
-                            receta=r,
-                            editar='true',
-                            id = r.get_id(),
-                            Ingredientes=r.obtener_ingredientes(),
-                            Pasos=r.obtener_pasos())
+                else:
+                    self.render("receta.html",
+                                rol='Anonimo',
+                                login='no',
+                                receta=r,
+                                editar='true',
+                                id = r.get_id(),
+                                Ingredientes=r.obtener_ingredientes(),
+                                Pasos=r.obtener_pasos())
         else:
             self.redirect("/")
 
@@ -293,6 +319,7 @@ class RecetasCategoriaHandler(Handler):
 
         self.render("pcr.html", rol=rol, login=login, recetas=recetas)
 
+
 class BusquedaHandler(Handler):
     def get(self):
         login = "no"
@@ -305,33 +332,9 @@ class BusquedaHandler(Handler):
         recetas=[]
         self.render("pcrBusqueda.html", rol=rol, login=login, recetas=recetas)
 
-
     def post(self):
-        buscar = self.request.get('buscar')
-        """
-            Funcion para coincidencias
-        """
-        def buscar_contenido(parametro1,parametro2,parametro3, busqueda):
-            if busqueda in parametro1:
-                return True
-            elif busqueda in parametro2:
-                return True
-            elif busqueda in parametro3:
-                return True
-            else:
-                return False
 
-        """
-            Funcion para buscar
-        """
-        def buscar_recetas(busqueda):
-            resultado = []
-            recetas = Receta.query().fetch()
-            for r in recetas:
-                if buscar_contenido(r.id_categoria,r.etiquetas,r.nombre, busqueda):
-                    print(r.nombre)
-                    resultado.append(r)
-            return resultado
+        buscar = self.request.get('buscar')
 
         print("este es el buscar :"+buscar)
         if buscar:
@@ -355,7 +358,7 @@ class BusquedaHandler(Handler):
                                     <br/>
                                 </div>
                             </div>
-                        </div>" '''
+                        </div> '''
 
         for r in recetas:
             respuesta += receta_card % {"id": r.get_id(),"nombre" :r.nombre,"descripcion" : r.descripcion}
