@@ -23,8 +23,10 @@ from BaseHandler import BaseHandler
 from Estructuras.Usuarios import Usuario
 from Estructuras.Ingredientes import Ingrediente
 from Estructuras.Pasos import Paso
+
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.ext import ndb
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'Plantillas')
@@ -32,9 +34,14 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
 
 
+
+
+
 def render_str(template, **params):
     t = jinja_env.get_template(template)
     return t.render(params)
+
+
 
 
 class Handler(BaseHandler):
@@ -52,6 +59,8 @@ class Handler(BaseHandler):
 class RegisterHandler(Handler):
     def get(self):
         rol = self.session.get('rol')
+        if not rol:
+            rol = "Anonimo"
         if rol == "Anonimo":
             self.write("No tienes permiso")
         else:
@@ -85,6 +94,7 @@ class AddInstructionHandler(Handler):
 class RemoveInstructionHandler(Handler):
     def post(self):
         try:
+
             ingrediente_key = self.request.get('id')
             i = Ingrediente.get_by_id(int(ingrediente_key))
             if i:
@@ -139,6 +149,9 @@ class MainHandler(Handler):
         rol = self.session.get('rol')
         login = "no"
         receta_key = self.request.get('id')
+
+        if not rol:
+            rol = "Anonimo"
         if usuario:
             login = "si"
 
@@ -165,7 +178,8 @@ class ErrorHandler(Handler):
 
         usuario = self.session.get('username')
         rol = self.session.get('rol')
-
+        if not rol:
+            rol = "Anonimo"
         if usuario:
             login = "si"
         self.render("errores.html",
@@ -242,6 +256,8 @@ class RecetasAllHandler(Handler):
         rol = self.session.get('rol')
         if usuario:
             login = "si"
+        if not rol:
+            rol = "Anonimo"
         recetas = Receta.query().fetch()
         self.render("pcr.html", rol=rol, login=login, recetas=recetas)
 
@@ -253,6 +269,7 @@ class RecetasPropiasHandler(Handler):
         rol = self.session.get('rol')
         if usuario:
             login = "si"
+
         u = Usuario.query(Usuario.nick == usuario).fetch()[0]
 
         recetas = Receta.query(Receta.id_usuario==u.get_id()).fetch()
@@ -265,11 +282,86 @@ class RecetasCategoriaHandler(Handler):
         login = "no"
         usuario = self.session.get('username')
         rol = self.session.get('rol')
+
         if usuario:
             login = "si"
+        if not rol:
+            rol ="Anonimo"
+
         categoria = self.request.get('categoria')
-        recetas = Receta.query(Receta.id_categoria == categoria).fetch()
+        recetas = buscar_recetas(categoria)
+
         self.render("pcr.html", rol=rol, login=login, recetas=recetas)
+
+class BusquedaHandler(Handler):
+    def get(self):
+        login = "no"
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        if usuario:
+            login = "si"
+        if not rol:
+            rol = "Anonimo"
+        recetas=[]
+        self.render("pcrBusqueda.html", rol=rol, login=login, recetas=recetas)
+
+
+    def post(self):
+        buscar = self.request.get('buscar')
+        """
+            Funcion para coincidencias
+        """
+        def buscar_contenido(parametro1,parametro2,parametro3, busqueda):
+            if busqueda in parametro1:
+                return True
+            elif busqueda in parametro2:
+                return True
+            elif busqueda in parametro3:
+                return True
+            else:
+                return False
+
+        """
+            Funcion para buscar
+        """
+        def buscar_recetas(busqueda):
+            resultado = []
+            recetas = Receta.query().fetch()
+            for r in recetas:
+                if buscar_contenido(r.id_categoria,r.etiquetas,r.nombre, busqueda):
+                    print(r.nombre)
+                    resultado.append(r)
+            return resultado
+
+        print("este es el buscar :"+buscar)
+        if buscar:
+            recetas = buscar_recetas(buscar)
+        else:
+            recetas = []
+
+        respuesta = ""
+        receta_card = '''<div class="col s12 m4 l3">
+                            <div class="card">
+                                <div class="card-image waves-effect waves-block waves-light">
+                                    <img class="activator" src="/view_photo?id=%(id)s">
+                                </div>
+                                <div class="card-content">
+                                    <span class="card-title activator grey-text text-darken-4">%(nombre)s<i class="material-icons right">more_vert</i></span>
+                                    <p><a href="/receta/ver?id={{r.get_id()}}">Ver Receta</a></p>
+                                </div>
+                                <div class="card-reveal">
+                                    <span class="card-title grey-text text-darken-4">%(nombre)s<i class="material-icons right">close</i></span>
+                                    <p class="truncate">%(descripcion)s</p>
+                                    <br/>
+                                </div>
+                            </div>
+                        </div>" '''
+
+        for r in recetas:
+            respuesta += receta_card % {"id": r.get_id(),"nombre" :r.nombre,"descripcion" : r.descripcion}
+
+        self.response.out.write(respuesta)
+
 
 
 config = {}
@@ -288,6 +380,6 @@ app = webapp2.WSGIApplication([
     ('/receta/lista', RecetasAllHandler),
     ('/receta/delPas', RemovePasoHandler),
     ('/receta/propias', RecetasPropiasHandler),
-    ('/receta/categoria', RecetasCategoriaHandler)
+    ('/receta/categoria', RecetasCategoriaHandler),
+    ('/receta/busqueda', BusquedaHandler)
 ], config=config, debug=True)
-
