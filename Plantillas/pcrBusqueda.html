@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script>
+function busquedaAJAX(){
+  console.log("buscando...");
+  $.ajax("/receta/busqueda",
+    {"type": "post",
+    "data":{"buscar":$("#busqueda").val()},
+    "success": function(result) { $("#recetas").html(result);},
+    "error": function(result){ console.error("Se ha producido un error:", result);},
+    "async": true })}
+</script>
+
+<div class="container">
+    <div class="section">
+      <form method="post">
+      <input type="text" name="busqueda" id="busqueda" onBlur="busquedaAJAX()" >
+      <form>
+        <!--   Icon Section   -->
+        <div class="row" id="recetas">
+
+
+            {% for r in recetas %}
+            <div class="col s12 m4 l3">
+                <div class="card">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="/view_photo?id={{r.get_id()}}">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">{{r.nombre}}<i class="material-icons right">more_vert</i></span>
+                        <p><a href="/receta/ver?id={{r.get_id()}}">Ver Receta</a></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4">{{r.nombre}}<i class="material-icons right">close</i></span>
+
+                        <p class="truncate">{{r.descripcion}}</p>
+                        <br/>
+                        {% for n in r.etiquetas.split(',') %}
+                        <div class="chip">
+                            #{{n}}
+
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+
+
+        </div>
+
+
+
+    </div>
+    <br><br>
+
+    <div class="section">
+
+    </div>
+</div>
+
+{% endblock %}
