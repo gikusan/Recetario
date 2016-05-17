@@ -2,47 +2,109 @@
 
 {%block content%}
 
-<div class="row">
-    <div class="col m2 red">
-<p></p>
-    </div>
-
-    <div class="col m10">
-        <div class="container">
-            <div class="section">
-                  <ul class="collapsible popout" data-collapsible="accordion">
-                    <li class="collection-item avatar">
-
-                      <div class="collapsible-header"><i class="material-icons">perm_identity</i>Juanito ferreiro</div>
-                      <div class="collapsible-body">
-                          <div class="row">
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col s12 m6 card-panel #f5f5f5 grey lighten-4">
+                <h5>Usuarios</h5>
+                <ul class="collapsible popout" data-collapsible="accordion">
+                    {% for u in usuarios %}
+                    <li class="collection-item avatar" id="{{u.get_id()}}">
+                        <div class="collapsible-header"><i class="material-icons">perm_identity</i>{{u.nick}}</div>
+                        <div class="collapsible-body">
+                            <div class="row">
                             <!-- Switch -->
-                              <div class="switch" style="padding-left: 28px; padding-top:28px;">
-                              Estado Usuario
-                                <label style="padding-left: 28px;">
-                                  Off
-                                  <input type="checkbox">
-                                  <span class="lever"></span>
-                                  On
-                                </label>
-                              </div>
-                              <div></div>
-                          </div>
-                      </div>
+                                <div class="switch" style="padding-left: 28px; padding-top:28px;">
+                                     Estado Usuario
+                                     <label style="padding-left: 28px;">
+                                        Off
+                                        <input type="checkbox"
+                                               {% if u.activado %} checked{% endif %} {% if u.rol!="Admin"%}
+                                         onclick="cambiar({{u.get_id()}}) {% else %} checked disabled {% endif %}">
+                                            <span class="lever"></span>
+                                        On
+                                     </label>
+                                </div>
+                            </div>
+                             <div class="row">
+                                <div class="container">
+                                    <a class="waves-effect waves-light btn #ef5350 red lighten-1" onclick="elimiarUsuer({{u.get_id()}})">Eliminar</a>
+                                </div>
+                             </div>
+                        </div>
                     </li>
-                    <li>
-                      <div class="collapsible-header"><i class="material-icons">place</i>Second</div>
-                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-                    </li>
-                    <li>
-                      <div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
-                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-                    </li>
-                  </ul>
+                    {% endfor %}
+                </ul>
+                <br/>
+            </div>
+            <div class="col s0 m1"><p></p></div>
 
+            <div class="col s12 m5 card-panel #f5f5f5 grey lighten-4">
+                <h5>Recetas</h5>
+                <ul class="collapsible popout" data-collapsible="accordion">
+                    {% for r in recetas %}
+                    <li class="collection-item avatar" id="{{r.get_id()}}">
+                        <div class="collapsible-header"><i class="material-icons">store</i>{{r.nombre}}</div>
+                            <div class="collapsible-body">
+                                <div class="row valign-wrapper">
+                                    <div class="col s6">
+                                        <a class="valign center-align" href="/receta/ver?id={{r.get_id()}}">Ver Receta</a>
+                                    </div>
+                                    <div class="col s6 valign">
+                                        <a class="waves-effect waves-light btn #ef5350 red lighten-1 right" onclick="elimiarReceta({{r.get_id()}})">Eliminar</a>
+                                    </div>
+                                </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <br/>
             </div>
         </div>
     </div>
+
+
 </div>
+    {% block script %}
+    <script>
+        function cambiar(id){
+             $.post( "/user/activar",{ id: id })
+        .done(function( data ) {
+           if(data == 'OK'){
+                Materialize.toast('Se ha cambiado el estado del usuario', 4000,'');
+           }else{
+                Materialize.toast('No se ha podido cambiar el estado del usuario', 4000,'');
+           }
+
+        });
+        }
+        function elimiarReceta(id){
+         $.post( "/receta/borrar",{ id: id })
+        .done(function( data ) {
+          if(data == 'OK'){
+                $('#'+ id).fadeOut('fast');
+                Materialize.toast('Se ha eliminado la receta', 4000,'');
+           }else{
+                Materialize.toast('No se ha podido eliminar la receta', 4000,'');
+           }
+
+        });
+         }
+
+        function elimiarUsuer(id){
+         $.post( "/user/borrar",{ id: id })
+        .done(function( data ) {
+          if(data == 'OK'){
+                $('#'+ id).fadeOut('fast');
+                Materialize.toast('Se ha eliminado el usuario', 4000,'');
+           }else{
+                Materialize.toast('No se ha podido eliminar el usuario', 4000,'');
+           }
+
+        });
+         }
+    </script>
+
+    {% endblock %}
 
 {%endblock%}

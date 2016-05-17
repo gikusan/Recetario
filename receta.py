@@ -360,6 +360,21 @@ class RecetasPropiasHandler(Handler):
         self.render("pcr.html", rol=rol, login=login, recetas=recetas)
 
 
+class RemoveRecetaHandler(Handler):
+    def post(self):
+        try:
+            receta = self.request.get('id')
+            p = Receta.get_by_id(int(receta))
+            if p:
+                p.delete()
+                self.write("OK")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
+
+
 class RecetasCategoriaHandler(Handler):
     def get(self):
         login = "no"
@@ -463,6 +478,6 @@ app = webapp2.WSGIApplication([
     ('/receta/stored',StoredHandler),
     ('/receta/propias', RecetasPropiasHandler),
     ('/receta/categoria', RecetasCategoriaHandler),
-    ('/receta/votar', AddVoteHandler),
-    ('/receta/busqueda', BusquedaHandler)
+    ('/receta/busqueda', BusquedaHandler),
+    ('/receta/borrar', RemoveRecetaHandler)
 ], config=config, debug=True)

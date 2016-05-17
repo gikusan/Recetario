@@ -30,6 +30,9 @@ class Receta(ndb.Model):
     # Para controlar el numero de votos
     num_votos = ndb.IntegerProperty()
 
+    def delete(self):
+        return self.key.delete()
+
     """
         Funcion para obtener directamente el id del objeto
     """
