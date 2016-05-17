@@ -4,11 +4,11 @@
 
 <script>
 function busquedaAJAX(){
-  console.log("buscando...");
+  $('#loadingmessage').show();
   $.ajax("/receta/busqueda",
     {"type": "post",
     "data":{"buscar":$("#busqueda").val()},
-    "success": function(result) { $("#recetas").html(result);},
+    "success": function(result) { $("#recetas").html(result);$('#loadingmessage').hide();},
     "error": function(result){ console.error("Se ha producido un error:", result);},
     "async": true })}
 </script>
@@ -20,7 +20,9 @@ function busquedaAJAX(){
       <form>
         <!--   Icon Section   -->
         <div class="row" id="recetas">
-
+          <div id='loadingmessage' style='display:none'>
+            <img src='loadinggraphic.gif'/>
+          </div>
 
             {% for r in recetas %}
             <div class="col s12 m4 l3">
