@@ -58,7 +58,31 @@
             </div>
 
     </div>
+    <div class="row ">
+        <div class="col s12 m2" >
+            <div class="chip" >
+                <img src="/Graficos/trofeo.jpeg" alt="Votos">
+                <span id="votos">{{receta.num_votos}} Votos</span>
+            </div>
+        </div>
+        <div class="col s12 m2 ">
+            <div class="switch ">
+                    <label>
+                        <input type="checkbox" id="fav" onchange="favorito({{id}})" {% if guardada %}checked{% endif %}>
+                        <span class="lever"></span>
+                        Favorito
+                    </label>
+            </div>
+        </div>
+        <div class="col s12 m2" id="votocon">
+            <a class="waves-effect waves-light btn-floating" id="botonvoto" onclick="votar({{id}})">  +1</a>
+        </div>
 
+
+        </div>
+
+
+    </div>
     <div class="row">
         <div id="pasos">
             <div id="pasos2">
@@ -97,7 +121,44 @@
             </div>
         </div>
     </div>
+    <div class="row" id="comentarios">
+        {% if editar!='true' %}
+        <h5>Comentarios</h5>
+        <ul class = "collection">
+        {% if rol!="Anonimo" %}
+            <li class = "collection-item">
+                <div class="row">
+                <input type="text" placeholder="Comentario" id="text_com"/>
+                <a class="secondary-content"><i class="material-icons" onclick="comentar({{id}})">add</i></a>
+                </div>
+            </li>
+        {% endif %}
+            <br>
+        {% for c in receta.obtener_comentarios() %}
+            <li class="collection-item">
+                <div class="chip left">
+                    <img src="/Graficos/anonym.png">
+                    {{c.nick}}
+                  </div>
+                <br><br>
+                {{c.texto}}
 
+            </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    <div class="row">
+        {% if editar!='true' and propietario=='true' %}
+            <a href="/receta/editar?id={{id}}" class="btn-floating btn-large waves-effect waves-light red right tooltipped
+            " data-position="left" data-delay="10" data-tooltip="Editar">
+                <i class="material-icons" >edit</i></a>
+        {% elif editar=='true'%}
+            <a href="/receta/ver?id={{id}}"class="btn-floating btn-large waves-effect waves-light red right tooltipped
+            " data-position="left" data-delay="10" data-tooltip="Guardar">
+                <i class="material-icons" alt="guardar">save</i></a>
+        {% endif %}
+    </div>
 </div>
 <br><br>
 
@@ -105,9 +166,11 @@
 
 </div>
 </div>
-{% if editar=='true' %}
+
 {% block script %}
+
 <script>
+{% if editar=='true' %}
     function insertar_ingrediente(){
         var ing = $('#ingrediente').val();
         var can = $('#cantidad').val();
@@ -173,8 +236,63 @@
 
         });
     }
+
+{% endif %}
+{% if rol!=Anonimo %}
+    function comentar(id){
+        var texto = $('#text_com').val();
+        $.post( "/receta/addComentario",{ id: id , texto: texto})
+        .done(function( data ) {
+           if(data == 'OK'){
+                setTimeout(function(){$('#comentarios').load(document.URL +  ' #comentarios')},1000);
+           }else{
+                alert("Fallo en la insercion");
+           }
+
+        });
+    }
+
+    function favorito(id){
+
+        var estado = "borrar";
+
+        if($("#fav").is(":checked")){
+            var estado = "add";
+        }
+
+        $.post( "/receta/Fav",{ id: id , estado: estado})
+        .done(function( data ) {
+           if(data == 'OK'){
+                if(estado == "borrar"){
+                    alert("Favorito eliminado");
+                }else{
+                    alert("Agregado a favoritos");
+                }
+
+           }else{
+                alert("Fallo en el sistema");
+           }
+
+        });
+
+    }
+
+{% endif %}
+    function votar(id){
+        $.post( "/receta/votar",{ id: id })
+        .done(function( data ) {
+           if(data != 'ERROR'){
+                $("#votos").html(data);
+                $("#votocon").html("<a class='waves-effect waves-light btn-floating disabled' id='botonvoto'>+1</a>");
+           }else{
+                alert("Fallo en la votacion");
+           }
+
+        });
+    }
+
 </script>
 
 {% endblock %}
-{% endif %}
+
 {% endblock %}

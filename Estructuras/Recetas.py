@@ -27,6 +27,9 @@ class Receta(ndb.Model):
     # Para controlar el numero de pasos
     num_pasos = ndb.IntegerProperty()
 
+    # Para controlar el numero de votos
+    num_votos = ndb.IntegerProperty()
+
     """
         Funcion para obtener directamente el id del objeto
     """
@@ -66,3 +69,35 @@ class Receta(ndb.Model):
 
     def obtener_ingredientes(self):
         return Ingrediente.query(Ingrediente.id_receta == self.get_id())
+
+    """
+        Funcion para votar
+    """
+    def add_voto(self):
+        self.num_votos += 1
+        self.put()
+
+    """
+        Funcion para anadir comentarios
+    """
+    def add_comentario(self,texto,usuario):
+        i = Comentario()
+        i.id_receta = self.get_id()
+        i.nick = usuario
+        i.texto = texto
+        i.put()
+
+    def obtener_comentarios(self):
+        return Comentario.query(Comentario.id_receta == self.get_id()).order(-Comentario.date)
+
+
+class Comentario(ndb.Model):
+
+    texto = ndb.StringProperty()
+
+    nick = ndb.StringProperty()
+
+    id_receta = ndb.GenericProperty()
+
+    date = ndb.DateTimeProperty(auto_now_add=True)
+
