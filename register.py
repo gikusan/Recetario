@@ -5,9 +5,9 @@ import jinja2
 import re
 import cgi
 from BaseHandler import BaseHandler
-
+import uuid
+import hashlib
 from Estructuras.Usuarios import Usuario
-
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'Plantillas')
@@ -61,6 +61,11 @@ class Register(Handler):
             return EMAIL_RE.match(email)
         def valid_name(nombre):
             return NOMBRE_RE.match(nombre)
+        def hash_password(password):
+            hash_object = hashlib.sha512(user_password)
+            hex_dig = hash_object.hexdigest()
+            return hex_dig
+
 
         user_username = self.request.get('username')
         user_password = self.request.get('password')
@@ -83,7 +88,7 @@ class Register(Handler):
 
         error = False
         if not valid_username(user_username):
-            username_error = "Nombre incorrecto!: "+self.request.get('username')
+            username_error = "Usuario incorrecto! "
             error = True
         if not valid_password(user_password):
             password_error = "Password incorrecto!"
@@ -121,7 +126,7 @@ class Register(Handler):
                 u=Usuario()
                 u.nick=user_username
                 u.email=user_email
-                u.password=user_password
+                u.password = hash_password(user_password)
                 u.name= user_name
                 u.surname = user_surname
                 u.activado = False

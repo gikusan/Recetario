@@ -9,6 +9,8 @@ from BaseHandler import BaseHandler
 from webapp2_extras import sessions
 from Estructuras.Usuarios import Usuario
 from google.appengine.ext import db
+import uuid
+import hashlib
 
 template_dir = os.path.join(os.path.dirname(__file__), 'Plantillas')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
@@ -61,7 +63,10 @@ class Login(Handler):
         sani_username = escape_html(user_username)
         sani_password = escape_html(user_password)
 
-        user=Usuario.query(Usuario.nick==user_username and Usuario.password==user_password).get()
+        hash_object = hashlib.sha512(user_password)
+        hex_dig = hash_object.hexdigest()
+
+        user=Usuario.query(Usuario.nick==user_username and Usuario.password==hex_dig).get()
         if user:
             #Usuario encontrado
             if user.activado:
@@ -77,7 +82,7 @@ class Login(Handler):
                 #Usuario sin activar
                 self.write(render_str("login.html",rol='Anonimo', login='no') % {"username" :sani_username,
                 "password" : "",
-                "username_error" : user.activado})
+                "username_error" : "El usuario no esta activado"})
 
         else:
             #No se encontro al usuario
