@@ -14,45 +14,167 @@
                 <img class="responsive-img" src="/view_photo?id={{id}}">
             </div>
 
-            <div class="col s12 m6">
-                <h5>Ingredientes</h5>
-                <p class="light">
+            <div class="col s12 m6" id="ingred">
+                <div id="ingred2">
+                    <h5>Ingredientes</h5>
+                    <p class="light">
+                        <ul class="collection">
 
-                    {% for i in Ingredientes %}
+                            {% for i in Ingredientes %}
 
-                        <li>{{i.nombre}} {{i.cantidad}} ({{i.descripcion}})</li>
+                            <li class="collection-item">
+                                <div>
+                                    {% if editar=='true' %}
+                                    <a class="secondary-content">
+                                        <i class="material-icons" onclick="delete_ing({{i.get_id()}})">close</i>
+                                    </a>
+                                    {% endif %}
+                                    {{i.nombre}} {{i.cantidad}}
+                                    {% if i.descripcion!="" %}
+                                    ({{i.descripcion}})
+                                    {% endif %}
 
-                    {% endfor %}
-                </p>
+                                </div>
+                            </li>
+
+                            {% endfor %}
+
+
+
+
+                            {% if editar=='true' %}
+                            <li class="collection-item">
+                                <input class="col s12 m3" type="text" id="ingrediente" placeholder="Ingrediente" required/>
+                                <div class="col s12 m1"><p> </p></div>
+                                <input class="col s12 m3" type="text" id="cantidad" placeholder="Cantidad" required/>
+                                <div class="col s12 m1"><p> </p></div>
+                                <input class="col s12 m3" type="text" placeholder="Descripción" id="descripcion"/>
+                                <a class="secondary-content"><i class="material-icons" onclick="insertar_ingrediente()">add</i></a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </p>
+                </div>
             </div>
 
-        </div>
+    </div>
 
-        <div class="row">
-            <div class="col s12 m6">
+    <div class="row">
+        <div id="pasos">
+            <div id="pasos2">
                 <h5>Descripción de la receta</h5>
                 <p class="light">
                     {{receta.descripcion}}
                 </p>
                 <h5>Descripción de los pasos</h5>
                 <p class="light">
-                {% for p in Pasos %}
-
+                <ol class="collection">
+                    {% for p in Pasos %}
+                    <div>
+                        {% if editar=='true' %}
+                        <a class="secondary-content">
+                            <i class="material-icons right" onclick="delete_pas({{p.get_id()}})">close</i>
+                        </a>
+                        {% endif %}
                     {% if p.tiempo//60 != 0 %}
-                        <li>{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)</li>
+                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)</li>
                     {% else %}
-                        <li>{{p.descripcion}} ({{p.tiempo%60}} seg)</li>
+                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo%60}} seg)</li>
                     {% endif %}
-                {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    {% if editar=='true' %}
+
+                    <li class = "collection-item">
+                        <input class="col s12 m8" type="text" placeholder="Descripción" id="paso_desc"/>
+                        <input class="col s12 m2" type="number" placeholder="Tiempo" id="paso_tim"/>
+                        <a class="secondary-content"><i class="material-icons" onclick="insertar_paso()">add</i></a>
+                    </li>
+                    {% endif %}
+                </ol>
                 </p>
             </div>
         </div>
-
     </div>
-    <br><br>
 
-    <div class="section">
-
-    </div>
 </div>
+<br><br>
+
+<div class="section">
+
+</div>
+</div>
+{% if editar=='true' %}
+{% block script %}
+<script>
+    function insertar_ingrediente(){
+        var ing = $('#ingrediente').val();
+        var can = $('#cantidad').val();
+        var des = $('#descripcion').val();
+
+        if(ing!="" && can!=""){
+            $.post( "/receta/addIns",{ id: "{{id}}", nombre: ing, descripcion: des, cantidad: can })
+            .done(function( data ) {
+                if(data == 'OK'){
+                    setTimeout(function(){$('#ingred').load(document.URL +  ' #ingred2')},1000);
+                }else{
+                    alert("Fallo en la insercion");
+                }
+
+            });
+        }else{
+            alert("Debes insertar al menos un ingrediente y su cantidad");
+        }
+    }
+
+    function insertar_paso(){
+        var tim = $('#paso_tim').val();
+        var des = $('#paso_desc').val();
+
+        if(des!="" && tim > 0){
+            $.post( "/receta/addPas",{ id: "{{id}}", tiempo: tim, descripcion: des})
+            .done(function( data ) {
+                if(data == 'OK'){
+                    setTimeout(function(){$('#pasos').load(document.URL +  ' #pasos2')},1000);
+                }else{
+                    alert("Fallo en la insercion");
+                }
+            });
+        }else{
+            alert("Debes insertar una descripción y un tiempo positivo");
+        }
+
+
+
+
+    }
+
+    function delete_ing(id){
+        $.post( "/receta/delIns",{ id: id })
+        .done(function( data ) {
+           if(data == 'OK'){
+                setTimeout(function(){$('#ingred').load(document.URL +  ' #ingred2')},1000);
+           }else{
+                alert("Fallo en la eliminacion");
+           }
+
+        });
+    }
+
+    function delete_pas(id){
+        $.post( "/receta/delPas",{ id: id })
+        .done(function( data ) {
+           if(data == 'OK'){
+                setTimeout(function(){$('#pasos').load(document.URL +  ' #pasos2')},1000);
+           }else{
+                alert("Fallo en la eliminacion");
+           }
+
+        });
+    }
+</script>
+
+{% endblock %}
+{% endif %}
 {% endblock %}

@@ -1,11 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<script>
+function busquedaAJAX(){
+  console.log("buscando...");
+  $.ajax("/receta/busqueda",
+    {"type": "post",
+    "data":{"buscar":$("#busqueda").val()},
+    "success": function(result) { $("#recetas").html(result);},
+    "error": function(result){ console.error("Se ha producido un error:", result);},
+    "async": true })}
+</script>
+
 <div class="container">
     <div class="section">
-
+      <form method="post">
+      <input type="text" name="busqueda" id="busqueda" onkeyup="busquedaAJAX()">
+      <form>
         <!--   Icon Section   -->
-        <div class="row">
+        <div class="row" id="recetas">
 
 
             {% for r in recetas %}

@@ -7,20 +7,22 @@
       <!--   Icon Section   -->
       <div class="row">
             <div class="col s0 m3"><p></p></div>
-                <form class="col s12 m6">
+            <style type="text/css"> .label {text-align: right} .error {color: red} </style>
+                <form method="post" class="col s12 m6">
                   <div class="row"> <h2 class="thin"> Login  </h2></div>
                   <div class="row">
                     <div class="input-field col s12">
                       <i class="material-icons prefix">account_circle</i>
-                      <input id="Nick" type="text" class="validate" length="10">
+                      <input name="username" id="Nick" type="text" class="validate" length="10" value="%(username)s">
                       <label for="Nick">Nick</label>
                     </div>
                   </div>
                   <div class="row">
                     <div class="input-field col s12">
                       <i class="material-icons prefix">lock_outline</i>
-                      <input id="password" type="password" class="validate">
+                      <input name="password" value="%(password)s" id="password" type="password" class="validate">
                       <label for="password">Contraseña</label>
+                      <div class="error"> %(username_error)s </div>
                     </div>
                   </div>
                   <div class="row">
