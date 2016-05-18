@@ -27,6 +27,9 @@ handlers:
 
 - url: /logout
   script: login.app
+
+- url: /googleAuth
+  script: login.app
 - url: .*
   script: main.app
 

@@ -31,6 +31,40 @@
                   </div>
                   <a href="/registro" class="blue-text text-darken-2 left">¿Eres nuevo? Registrate</a>
                 </form>
+
+
+                <script src="https://apis.google.com/js/platform.js" async defer></script>
+                <meta name="google-signin-client_id" content="759202318316-ok9n15b9fs4fap8uvfaahaof0tjhbaid.apps.googleusercontent.com">
+                <div
+                  class="g-signin2"
+                  data-onsuccess="onSignIn"
+                  data-onfailure="onSignInFailure">
+                </div>
+                <script>
+                // Google Sign-in (new)
+
+                function onSignIn(googleUser) {
+                  var profile = googleUser.getBasicProfile();
+                  $.ajax("/googleAuth",
+                    {"type": "post",
+                    "data":{"usuarioGoogleId":profile.getId(),
+                            "usuarioGoogleName":profile.getName(),
+                            "usuarioGoogleEmail":profile.getEmail()},
+                    "success": function(result) { console.log(result);window.location.replace("/");},
+                    "error": function(result){ console.error("Se ha producido un error:", result);},
+                    "async": true })
+
+                  /*console.log("hola");
+                  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+                  console.log('Name: ' + profile.getName());
+                  console.log('Image URL: ' + profile.getImageUrl());
+                  console.log('Email: ' + profile.getEmail());*/
+                }
+                function onSignInFailure(googleUser) {
+                  console.log('NO AUTORIZADO'); //
+                }
+                </script>
+
       </div>
 
     </div>
