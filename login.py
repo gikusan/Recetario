@@ -32,10 +32,9 @@ class Logout(Handler):
     def get(self):
         for k in self.session.keys():
             del self.session[k]
-        self.render("errores.html",
+        self.render("logout.html",
                         rol='Anonimo',
-                        login='no',
-                        message= 'Hasta pronto',
+                        login='no'
                         )
 
 class Login(Handler):
@@ -45,7 +44,7 @@ class Login(Handler):
         if self.session.get('username'):
             self.render("errores.html",
                             rol='Usuario',
-                            login='no',
+                            login='si',
                             message= self.session.get('username')+ ' ya estas logueado',
                             )
         else:
@@ -91,6 +90,37 @@ class Login(Handler):
             "username_error" : "No existe dicha combinacion de usuario y password"})
 
 
+class googleAuth(Handler):
+    def post(self):
+        usuarioGoogleId = self.request.get('usuarioGoogleId')
+        usuarioGoogleName = self.request.get('usuarioGoogleName')
+        usuarioGoogleEmail = self.request.get('usuarioGoogleEmail')
+
+
+        #Si no existe el usuario, se registra en nuestra BBDD
+        user=Usuario.query(Usuario.nick==usuarioGoogleName).count()
+        if user==0:
+            u=Usuario()
+            u.nick=usuarioGoogleName
+            u.email=usuarioGoogleEmail
+            u.password = "googleAccount"
+            u.name= usuarioGoogleName
+            u.surname = ""
+            u.activado = True
+            u.rol = "Usuario"
+            u.put()
+            self.session['rol'] = "Usuario"
+            self.session['username'] = usuarioGoogleName
+            #Usuario activado
+            self.response.out.write("usuario creado y  logueado")
+
+        else:
+            #usuario ya en la BBDD
+            user=Usuario.query(Usuario.nick==usuarioGoogleName).get()
+            self.session['rol'] = user.rol
+            self.session['username'] = user.nick
+            self.response.out.write("usuario logueado")
+
 
 
 config = {}
@@ -99,5 +129,6 @@ config['webapp2_extras.sessions'] = {
 }
 app = webapp2.WSGIApplication([
     ('/login', Login),
-    ('/logout', Logout)
+    ('/logout', Logout),
+    ('/googleAuth', googleAuth)
     ],config=config, debug=True)

@@ -8,7 +8,7 @@ function busquedaAJAX(){
   $.ajax("/receta/busqueda",
     {"type": "post",
     "data":{"buscar":$("#busqueda").val()},
-    "success": function(result) { $("#recetas").html(result);$('#loadingmessage').hide();},
+    "success": function(result) { $("#recetas").html(result);$('#loadingmessage').hide$('#loadingmessage').show();();},
     "error": function(result){ console.error("Se ha producido un error:", result);},
     "async": true })}
 </script>
@@ -19,11 +19,12 @@ function busquedaAJAX(){
       <input type="text" name="busqueda" id="busqueda" onkeyup="busquedaAJAX()">
       <form>
         <!--   Icon Section   -->
+        <div id='loadingmessage' style='display:none'>
+          <div class="progress">
+            <div class="indeterminate"></div>
+            </div>
+        </div>
         <div class="row" id="recetas">
-          <div id='loadingmessage' style='display:none'>
-            <img src='loadinggraphic.gif'/>
-          </div>
-
             {% for r in recetas %}
             <div class="col s12 m4 l3">
                 <div class="card">
