@@ -118,6 +118,40 @@ class AddInstructionHandler(Handler):
             self.write(ValueError)
 
 
+class AddVoteHandler(Handler):
+    def post(self):
+        try:
+            receta_key = self.request.get('id')
+            r = Receta.get_by_id(int(receta_key))
+            if r:
+                r.add_voto()
+                self.write(str(r.num_votos)+" Votos")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
+
+
+class AddCommentHandler(Handler):
+    def post(self):
+        try:
+            usuario = self.session.get('username')
+            receta_key = self.request.get('id')
+            texto = self.request.get('texto')
+
+            r = Receta.get_by_id(int(receta_key))
+
+            if r:
+                r.add_comentario(texto, usuario)
+                self.write("OK")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
+
+
 class RemoveInstructionHandler(Handler):
     def post(self):
         try:
@@ -187,12 +221,18 @@ class MainHandler(Handler):
             self.response.write("Receta no encontrada")
         else:
             r = Receta.get_by_id(int(receta_key))
-            if r:
+            u = Usuario.query(Usuario.nick == usuario).fetch()[0]
+            propietario = 'false'
+            if u.get_id() == r.id_usuario:
+                propietario = 'true'
+            if r :
                 self.render("receta.html",
                             rol=rol,
                             login=login,
                             receta=r,
+                            propietario=propietario,
                             editar='false',
+                            guardada=u.receta_guardada(str(r.get_id())),
                             id=r.get_id(),
                             Ingredientes=r.obtener_ingredientes(),
                             Pasos=r.obtener_pasos())
@@ -225,6 +265,7 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
             r = Receta(
                 nombre=self.request.get("nombre"),
                 num_pasos=0,
+                num_votos=0,
                 descripcion=self.request.get("descripcion"),
                 etiquetas=self.request.get("tags"),
                 id_categoria=self.request.get("categoria"),
@@ -243,6 +284,7 @@ class EditHandler(Handler):
     def get(self):
         usuario = self.session.get('username')
         rol = self.session.get('rol')
+        control = True;
         if usuario:
 
             u = Usuario.query(Usuario.nick == usuario).fetch()[0]
@@ -257,18 +299,20 @@ class EditHandler(Handler):
                 if not r.id_usuario:
                     r.id_usuario = u.get_id()
                     r.put()
-                elif r.id_usuario!=u.get_id :
-                        self.render("errores.html",
-                            rol=rol,
-                            login="si",
-                            message='No puedes editar recetas que no te pertenezcan',
-                            )
-                else:
+                elif r.id_usuario!=u.get_id() :
+                    control = False
+                    self.render("errores.html",
+                                rol=rol,
+                                login="si",
+                                message='No puedes editar recetas que no te pertenezcan',
+                                )
+                if control:
                     self.render("receta.html",
-                                rol='Anonimo',
-                                login='no',
+                                rol=rol,
+                                login='si',
                                 receta=r,
                                 editar='true',
+                                propietario='true',
                                 id = r.get_id(),
                                 Ingredientes=r.obtener_ingredientes(),
                                 Pasos=r.obtener_pasos())
@@ -287,6 +331,19 @@ class RecetasAllHandler(Handler):
         recetas = Receta.query().fetch()
         self.render("pcr.html", rol=rol, login=login, recetas=recetas)
 
+class StoredHandler(Handler):
+    def get(self):
+        login = "no"
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        if usuario:
+            login = "si"
+
+        u = Usuario.query(Usuario.nick == usuario).fetch()[0]
+
+        recetas = u.get_recetas()
+
+        self.render("pcr.html", rol=rol, login=login, recetas=recetas)
 
 class RecetasPropiasHandler(Handler):
     def get(self):
@@ -366,6 +423,25 @@ class BusquedaHandler(Handler):
         self.response.out.write(respuesta)
 
 
+class FavHandler(Handler):
+    def post(self):
+        try:
+            usuario = self.session.get('username')
+            u = Usuario.query(Usuario.nick == usuario).fetch()[0]
+            receta_key = self.request.get('id')
+            estado = self.request.get('estado')
+            if u:
+                if estado == "borrar":
+                    u.del_receta(receta_key)
+                else:
+                    u.add_receta(receta_key)
+                self.write("OK")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
+
 
 config = {}
 config['webapp2_extras.sessions'] = {
@@ -378,11 +454,15 @@ app = webapp2.WSGIApplication([
     ('/receta/editar', EditHandler),
     ('/receta/error', ErrorHandler),
     ('/receta/addIns', AddInstructionHandler),
+    ('/receta/addComentario', AddCommentHandler),
     ('/receta/delIns', RemoveInstructionHandler),
     ('/receta/addPas', AddPasoHandler),
     ('/receta/lista', RecetasAllHandler),
     ('/receta/delPas', RemovePasoHandler),
+    ('/receta/Fav',FavHandler ),
+    ('/receta/stored',StoredHandler),
     ('/receta/propias', RecetasPropiasHandler),
     ('/receta/categoria', RecetasCategoriaHandler),
+    ('/receta/votar', AddVoteHandler),
     ('/receta/busqueda', BusquedaHandler)
 ], config=config, debug=True)
