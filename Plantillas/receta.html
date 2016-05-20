@@ -65,7 +65,22 @@
                 <span id="votos">{{receta.num_votos}} Votos</span>
             </div>
         </div>
-        <div class="col s12 m2 ">
+        <div class="col s6 m4">
+            <div style="height: 20px;">
+                <p></p>
+             </div>
+              <div class="fixed-action-btn horizontal click-to-toggle" style="padding-top: 0px;">
+                    <a class="btn-floating btn-large right green">
+                    <i class="large material-icons">share</i>
+                    </a>
+            <ul style="padding-top: 5px;">
+              {%if rol!="Anonimo" %}<li><a class="btn-floating red" onclick="favorito({{id}})"><i class="material-icons" id="favico">
+                  {% if guardada %}favorite {%else%} favorite_border{% endif %}</i></a></li>{% endif %}
+              <li><a class="btn-floating blue" id="botonvoto" onclick= "votar({{id}})" ><i class="material-icons">plus_one</i></a></li>
+            </ul>
+            </div>
+        </div>
+        <div class="col s6 m2 " hidden>
             <div class="switch ">
                     <label>
                         <input type="checkbox" id="fav" onchange="favorito({{id}})" {% if guardada %}checked{% endif %}>
@@ -74,8 +89,9 @@
                     </label>
             </div>
         </div>
-        <div class="col s12 m2" id="votocon">
-            <a class="waves-effect waves-light btn-floating" id="botonvoto" onclick="votar({{id}})">  +1</a>
+        <div class="col s4 m2"  style="padding-top: 10px;" >
+            <a class="waves-effect btn-large waves-light btn-floating blue tooltipped" href="/receta/play?id={{id}}"
+            data-position="top" data-delay="10" data-tooltip="Realizar receta paso a paso" ><i class="material-icons">play_arrow</i> </a>
         </div>
 
 
@@ -87,70 +103,83 @@
         <div id="pasos">
             <div id="pasos2">
                 <h5>Descripción de la receta</h5>
-                <p class="light">
+                <p class="light card-panel">
                     {{receta.descripcion}}
                 </p>
                 <h5>Descripción de los pasos</h5>
-                <p class="light">
-                <ol class="collection">
+
+
+                <div class="card-panel">
                     {% for p in Pasos %}
-                    <div>
+                    <div class="row">
                         {% if editar=='true' %}
-                        <a class="secondary-content">
                             <i class="material-icons right" onclick="delete_pas({{p.get_id()}})">close</i>
-                        </a>
+
                         {% endif %}
                     {% if p.tiempo//60 != 0 %}
-                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)</li>
+                        Paso {{loop.index}}: <br/>{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)
                     {% else %}
-                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo%60}} seg)</li>
+                       Paso {{loop.index}}: <br/>{{p.descripcion}} ({{p.tiempo%60}} seg)
                     {% endif %}
                     </div>
                     {% endfor %}
+                </div>
 
                     {% if editar=='true' %}
-
-                    <li class = "collection-item">
-                        <input class="col s12 m8" type="text" placeholder="Descripción" id="paso_desc"/>
-                        <input class="col s12 m2" type="number" placeholder="Tiempo" id="paso_tim"/>
-                        <a class="secondary-content"><i class="material-icons" onclick="insertar_paso()">add</i></a>
-                    </li>
+                    <div class="row card-panel" style="margin-top:25px">
+                        <div class="col s12 m8">
+                            <input type="text" placeholder="Descripción" id="paso_desc"/>
+                        </div>
+                        <div class="col s8 m2">
+                            <input class="" type="number" placeholder="Tiempo" id="paso_tim"/>
+                        </div>
+                        <div class="col s4 m2">
+                            <a class="btn-floating btn-large"><i class="material-icons" onclick="insertar_paso()">add</i></a>
+                        </div>
+                    </div>
                     {% endif %}
-                </ol>
-                </p>
             </div>
         </div>
     </div>
     <div class="row" id="comentarios">
         {% if editar!='true' %}
         <h5>Comentarios</h5>
-        <ul class = "collection">
+        <div>
         {% if rol!="Anonimo" %}
-            <li class = "collection-item">
-                <div class="row">
-                <input type="text" placeholder="Comentario" id="text_com"/>
-                <a class="secondary-content"><i class="material-icons" onclick="comentar({{id}})">add</i></a>
+            <div class="card-panel">
+                <div class = "row">
+                    <div class="col s0 m1"><p></p></div>
+                    <div class="input-field col s12 m10">
+                        <textarea class="materialize-textarea" placeholder="Escribe tu comentario" id="text_com"></textarea>
+                    </div>
                 </div>
-            </li>
+                <div class="row">
+                    <div class="col s12 m11">
+                        <a class="waves-effect waves-light btn right" onclick="comentar({{id}})">Añadir</a>
+                    </div>
+                    <div class="col s0 m1"><p></p></div>
+                </div>
+            </div>
         {% endif %}
             <br>
         {% for c in receta.obtener_comentarios() %}
-            <li class="collection-item">
+            <div class="card-panel">
                 <div class="chip left">
                     <img src="/Graficos/anonym.png">
                     {{c.nick}}
                   </div>
                 <br><br>
+                <br><br>
                 {{c.texto}}
 
-            </li>
+            </div>
         {% endfor %}
-        </ul>
+        </div>
         {% endif %}
     </div>
     <div class="row">
         {% if editar!='true' and propietario=='true' %}
-            <a href="/receta/editar?id={{id}}" class="btn-floating btn-large waves-effect waves-light red right tooltipped
+            <a href="/receta/editar?id={{id}}" class="btn-floating fixed btn-large waves-effect waves-light red right tooltipped
             " data-position="left" data-delay="10" data-tooltip="Editar">
                 <i class="material-icons" >edit</i></a>
         {% elif editar=='true'%}
@@ -254,19 +283,23 @@
 
     function favorito(id){
 
-        var estado = "borrar";
-
+        var estado = "add";
         if($("#fav").is(":checked")){
-            var estado = "add";
+            var estado = "borrar";
+            $(' #favico').text('favorite_border');
+            $( "#fav" ).prop( "checked" , false);
+        }else{
+            $( "#fav" ).prop( "checked", true);
+            $(' #favico').text('favorite');
         }
 
         $.post( "/receta/Fav",{ id: id , estado: estado})
         .done(function( data ) {
            if(data == 'OK'){
                 if(estado == "borrar"){
-                    alert("Favorito eliminado");
+                    Materialize.toast('Se ha eliminado de favoritos', 4000,'');
                 }else{
-                    alert("Agregado a favoritos");
+                    Materialize.toast('Se ha añadido a favoritos', 4000,'');
                 }
 
            }else{
@@ -282,6 +315,7 @@
         $.post( "/receta/votar",{ id: id })
         .done(function( data ) {
            if(data != 'ERROR'){
+                $( "#botonvoto" ).addClass( "disabled");
                 $("#votos").html(data);
                 $("#votocon").html("<a class='waves-effect waves-light btn-floating disabled' id='botonvoto'>+1</a>");
            }else{

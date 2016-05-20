@@ -57,12 +57,12 @@ class Usuario(ndb.Model):
         m.put()
 
     def del_receta(self, receta):
-        m = MiReceta.query(MiReceta.id_usuario==self.get_id() and MiReceta.id_receta==receta).fetch()[0]
+        m = MiReceta.query(MiReceta.id_usuario == self.get_id()).filter(MiReceta.id_receta == receta).fetch()[0]
         m.delete()
 
     def receta_guardada(self,receta):
-        m = MiReceta.query(MiReceta.id_usuario==self.get_id() and MiReceta.id_receta == receta).count()
-        print(m)
+        m = MiReceta.query(MiReceta.id_usuario == self.get_id()).filter(MiReceta.id_receta == receta).count()
+        print("Numero de receta" + str(m))
         if m > 0:
             return True
         else:

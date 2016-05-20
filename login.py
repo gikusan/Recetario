@@ -65,7 +65,7 @@ class Login(Handler):
         hash_object = hashlib.sha512(user_password)
         hex_dig = hash_object.hexdigest()
 
-        user=Usuario.query(Usuario.nick==user_username and Usuario.password==hex_dig).get()
+        user=Usuario.query(Usuario.nick==user_username).filter(Usuario.password==hex_dig).get()
         if user:
             #Usuario encontrado
             if user.activado:

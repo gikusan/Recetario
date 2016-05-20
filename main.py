@@ -114,6 +114,8 @@ class AdminHandler(Handler):
             rol = "Anonimo"
         usuarios = Usuario.query().fetch()
         recetas = Receta.query().fetch()
+        if rol!="Admin":
+            self.redirect("/")
         self.render("admin.html", rol=rol, login=login, recetas=recetas, usuarios=usuarios)
 
 
