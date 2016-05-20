@@ -72,10 +72,10 @@ class Login(Handler):
                 #Usuario activado
                 self.session['rol'] = user.rol
                 self.session['username'] = sani_username
-                self.render("errores.html",
+                self.render("index.html",
                                 rol=user.rol,
                                 login='si',
-                                message = sani_username+' logueado correctamente',
+                             #   message = sani_username+' logueado correctamente',
                                 )
             else:
                 #Usuario sin activar

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="section">
+
+        <!--   Icon Section   -->
+        <div class="row">
+            <h3>{{receta.nombre}}</h3>
+        </div>
+        <h4>{{pasos|length}} estos son los pasos</h4>
+        <div class="row">
+            <h4 class="thin">Progreso para completar la receta</h4>
+              <div class="progress" style="height:30px">
+                  <div class="determinate" id="Ttotal"></div>
+              </div>
+            <h4 class="thin">Tiempo para terminar este paso</h4>
+            <div class="progress" style="height: 15px">
+                <div class="determinate" style="width: 70%" id="tPaso"></div>
+            </div>
+
+        </div>
+<!-- -->
+    </div>
+
+    <div class="row">
+        <div id="pasos">
+            <div id="pasos2">
+                <h5>Descripción de la receta</h5>
+                <p class="light">
+                    {{receta.descripcion}}
+                </p>
+                <h5>Descripción de los pasos</h5>
+                <p class="light">
+                <ol class="collection">
+                    {% for p in Pasos %}
+                    <div>
+                        {% if editar=='true' %}
+                        <a class="secondary-content">
+                             <a class="btn-floating waves-effect waves-light red right"  onclick="delete_pas({{p.get_id()}})"><i class="material-icons">add</i></a>
+                        </a>
+                        {% endif %}
+                    {% if p.tiempo//60 != 0 %}
+                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)</li>
+                    {% else %}
+                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo%60}} seg)</li>
+                    {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    {% if editar=='true' %}
+
+                    <li class = "collection-item">
+                        <input class="col s12 m8" type="text" placeholder="Descripción" id="paso_desc"/>
+                        <input class="col s12 m2" type="number" placeholder="Tiempo" id="paso_tim"/>
+                         <a class="btn-floating waves-effect waves-light red right teal"  onclick="insertar_paso()"><i class="material-icons">add</i></a>
+                    </li>
+                    {% endif %}
+                </ol>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+<br><br>
+
+<div class="section">
+
+</div>
+</div>
+{% block script %}
+<script>
+
+$(document).ready(function() {
+    aumentarTotal({{pasos|length}},1)
+});
+
+    function aumentarTotal(total,current){
+        var por = (current * 100) / total;
+         $('#Ttotal').css("with:50%");
+    }
+
+    function aumetarPaso(total,current){
+        var por = (current * 100) / total;
+        $('#tPaso').css("with=40%");
+    }
+
+    function iniciar(){
+
+    }
+
+    function insertar_ingrediente(){
+        var ing = $('#ingrediente').val();
+        var can = $('#cantidad').val();
+        var des = $('#descripcion').val();
+
+        if(ing!="" && can!=""){
+            $.post( "/receta/addIns",{ id: "{{id}}", nombre: ing, descripcion: des, cantidad: can })
+            .done(function( data ) {
+                if(data == 'OK'){
+                    setTimeout(function(){$('#ingred').load(document.URL +  ' #ingred2')},1000);
+                }else{
+                    alert("Fallo en la insercion");
+                }
+
+            });
+        }else{
+            alert("Debes insertar al menos un ingrediente y su cantidad");
+        }
+    }
+
+    function insertar_paso(){
+        var tim = $('#paso_tim').val();
+        var des = $('#paso_desc').val();
+
+        if(des!="" && tim > 0){
+            $.post( "/receta/addPas",{ id: "{{id}}", tiempo: tim, descripcion: des})
+            .done(function( data ) {
+                if(data == 'OK'){
+                    setTimeout(function(){$('#pasos').load(document.URL +  ' #pasos2')},1000);
+                }else{
+                    alert("Fallo en la insercion");
+                }
+            });
+        }else{
+            alert("Debes insertar una descripción y un tiempo positivo");
+        }
+
+
+
+
+    }
+
+    function delete_ing(id){
+        $.post( "/receta/delIns",{ id: id })
+        .done(function( data ) {
+           if(data == 'OK'){
+                setTimeout(function(){$('#ingred').load(document.URL +  ' #ingred2')},1000);
+           }else{
+                alert("Fallo en la eliminacion");
+           }
+
+        });
+    }
+
+    function delete_pas(id){
+        $.post( "/receta/delPas",{ id: id })
+        .done(function( data ) {
+           if(data == 'OK'){
+                setTimeout(function(){$('#pasos').load(document.URL +  ' #pasos2')},1000);
+           }else{
+                alert("Fallo en la eliminacion");
+           }
+
+        });
+    }
+</script>
+
+{% endblock %}
+{% endblock %}

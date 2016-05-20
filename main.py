@@ -19,6 +19,8 @@ import os
 import jinja2
 
 from session_module import BaseSessionHandler
+from Estructuras.Recetas import Receta
+from Estructuras.Usuarios import Usuario
 
 template_dir = os.path.join(os.path.dirname(__file__), 'Plantillas')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
@@ -62,6 +64,21 @@ class RecetaHandler(Handler):
         self.render("receta.html", rol=rol, login=login)
 
 
+class RemoveUserHandler(Handler):
+    def post(self):
+        try:
+            user = self.request.get('id')
+            u = Usuario.get_by_id(int(user))
+            if u:
+                u.delete()
+                self.write("OK")
+            else:
+                self.write("ERROR")
+
+        except ValueError:
+            self.write(ValueError)
+
+
 class RegistroHandler(Handler):
     def get(self):
         usuario = self.session.get('username')
@@ -86,6 +103,31 @@ class LoginHandler(Handler):
         self.render("login.html", rol=rol, login=login)
 
 
+class AdminHandler(Handler):
+    def get(self):
+        login = "no"
+        rol = self.session.get('rol')
+        usuario = self.session.get('username')
+        if usuario:
+            login = "si"
+        if not rol:
+            rol = "Anonimo"
+        usuarios = Usuario.query().fetch()
+        recetas = Receta.query().fetch()
+        self.render("admin.html", rol=rol, login=login, recetas=recetas, usuarios=usuarios)
+
+
+class ActHandler(Handler):
+    def post(self):
+        try:
+            userid = self.request.get("id")
+            usuario = Usuario.get_by_id(int(userid))
+            usuario.activado = not usuario.activado
+            usuario.put()
+            self.write("OK")
+        except ValueError:
+            self.write(ValueError)
+
 class CatalogoHandler(Handler):
     def get(self):
         usuario = self.session.get('username')
@@ -103,6 +145,13 @@ config['webapp2_extras.sessions'] = {
 }
 
 app = webapp2.WSGIApplication([
-    ('/receta', RecetaHandler), ('/', MainHandler), ('/registro', RegistroHandler), ('/login', LoginHandler),
-    ('/catalogo', CatalogoHandler)
+    ('/receta', RecetaHandler),
+    ('/', MainHandler),
+    ('/registro', RegistroHandler),
+    ('/login', LoginHandler),
+    ('/catalogo', CatalogoHandler),
+    ('/admin', AdminHandler),
+    ('/user/activar', ActHandler),
+    ('/user/borrar', RemoveUserHandler)
+
 ], config=config,debug=True)
