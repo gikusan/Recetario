@@ -6,16 +6,17 @@
 
         <!--   Icon Section   -->
         <div class="row">
-
-
             {% for r in recetas %}
-            <div class="col s12 m4 l3">
+            {%if loop.index % 3 == 0 %}
+            <div class="row">
+            {% endif %}
+            <div class="col s12 m4">
                 <div class="card">
                     <div class="card-image waves-effect waves-block waves-light">
-                        <img class="activator" src="/view_photo?id={{r.get_id()}}">
+                        <img class="activator responsive-img" src="/view_photo?id={{r.get_id()}}">
                     </div>
                     <div class="card-content">
-                        <span class="card-title activator grey-text text-darken-4">{{r.nombre}}<i class="material-icons right">more_vert</i></span>
+                        <span class="card-title activator grey-text text-darken-4 truncate">{{r.nombre}}<i class="material-icons right">more_vert</i></span>
                         <p><a href="/receta/ver?id={{r.get_id()}}">Ver Receta</a></p>
                     </div>
                     <div class="card-reveal">
@@ -31,8 +32,10 @@
                         {% endfor %}
                     </div>
                 </div>
-
             </div>
+            {%if loop.index % 3 == 0 %}
+            </div>
+            {% endif %}
             {% endfor %}
 
 

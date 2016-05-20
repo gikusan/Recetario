@@ -16,12 +16,14 @@
                     <div class="input-field col s12 m6">
                       <i class="material-icons prefix">person_pin</i>
                       <input name="name" id="Nombre" type="text" class="validate" length="30" value="%(name)s">
-                      <label for="Nombre">Nombre</label>
+                      <label for="Nombre" data-error="%(name_error)s">Nombre</label>
+                      <div class="error"> %(name_error)s </div>
                     </div>
                     <div class="input-field col s12 m6">
                       <i class="material-icons prefix">account_circle</i>
                       <input name="surname" id="Apellido" type="text" class="validate" length="30" value="%(surname)s">
-                      <label for="Apellido">Apellidos</label>
+                      <div class="error"> %(surname_error)s </div>
+                      <label for="Apellido" data-error="%(surname_error)s">Apellidos</label>
                     </div>
                   </div>
                   <div class="row">

@@ -32,7 +32,7 @@ class Register(Handler):
 
     def get(self, username="", password="", verify="",email="", username_error="", password_error="",verify_error="", email_error="",name="",surname="",name_error="",surname_error=""):
 
-        self.write(render_str("registro.html",rol="Anonimo", login="no") % {"username" :username,
+        self.write(render_str("registro.html", rol="Anonimo", login="no") % {"username" :username,
         "password" : password,
         "verify" : verify,
         "email" : email,
@@ -54,19 +54,23 @@ class Register(Handler):
         PASSWORD_RE = re.compile(r"^.{3,20}$")
         EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
         NOMBRE_RE = re.compile(r"^[a-zA-Z-]{3,30}$")
+
         def valid_username(username):
             return USER_RE.match(username)
+
         def valid_password(password):
             return PASSWORD_RE.match(password)
+
         def valid_email(email):
             return EMAIL_RE.match(email)
+
         def valid_name(nombre):
             return NOMBRE_RE.match(nombre)
+
         def hash_password(password):
             hash_object = hashlib.sha512(user_password)
             hex_dig = hash_object.hexdigest()
             return hex_dig
-
 
         user_username = self.request.get('username')
         user_password = self.request.get('password')
@@ -101,10 +105,10 @@ class Register(Handler):
             email_error = "Email incorrecto!"
             error = True
         if not valid_name(user_name):
-            email_error = "Nombre incorrecto!"
+            name_error = "Nombre incorrecto!"
             error = True
         if not valid_name(user_surname):
-            email_error = "Apellido incorrecto!"
+            surname_error = "Apellido incorrecto!"
             error = True
 
 

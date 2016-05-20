@@ -8,59 +8,88 @@
         <div class="row">
             <h3>{{receta.nombre}}</h3>
         </div>
-        <h4>{{pasos|length}} estos son los pasos</h4>
         <div class="row">
             <h4 class="thin">Progreso para completar la receta</h4>
-              <div class="progress" style="height:30px">
-                  <div class="determinate" id="Ttotal"></div>
+              <div class="progress #90caf9 blue lighten-3" style="height:30px">
+                  <div class="determinate blue" id="Ttotal"></div>
               </div>
             <h4 class="thin">Tiempo para terminar este paso</h4>
             <div class="progress" style="height: 15px">
-                <div class="determinate" style="width: 70%" id="tPaso"></div>
+                <div class="determinate" style="width: 0%" id="tPaso"></div>
             </div>
 
         </div>
+
+        <div class="row card-panel">
+                    {% for p in Pasos %}
+                    <div class="row" {%if loop.index != 1%} hidden {%endif%} id="r{{loop.index}}">
+                    {% if p.tiempo//60 != 0 %}
+                        <h6>Paso {{loop.index}}:</h6>{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)
+                    {% else %}
+                       <h6>Paso {{loop.index}}: </h6>{{p.descripcion}} ({{p.tiempo%60}} seg)
+                    {% endif %}
+                        <input type="text" id={{loop.index0}} value={{p.tiempo}} hidden/>
+                    </div>
+                    {% if loop.last %}
+                        <input type="text" id="last" value={{loop.index0}} hidden/>
+                    {% endif%}
+                    {% endfor %}
+                <div id="msfinal" hidden>
+                    <h4>Espero que este como la nuestra, disfruta de la receta!!!</h4>
+                    <img src="/Graficos/play.gif" class="valign responsive-img"></img>
+                </div>
+        </div>
+         <div id="play">
+            <a class="btn-floating btn-large waves-effect waves-light right blue " onclick="empezar()"><i class="material-icons">play_arrow</i></a>
+         </div>
+        <br/>
+        <br/>
 <!-- -->
     </div>
-
-    <div class="row">
+        <div class="row">
         <div id="pasos">
             <div id="pasos2">
                 <h5>Descripción de la receta</h5>
-                <p class="light">
+                <p class="light card-panel">
                     {{receta.descripcion}}
                 </p>
                 <h5>Descripción de los pasos</h5>
-                <p class="light">
-                <ol class="collection">
+
+
+                <div class="card-panel">
                     {% for p in Pasos %}
-                    <div>
+                    <div class="row">
                         {% if editar=='true' %}
-                        <a class="secondary-content">
-                             <a class="btn-floating waves-effect waves-light red right"  onclick="delete_pas({{p.get_id()}})"><i class="material-icons">add</i></a>
-                        </a>
+                            <i class="material-icons right" onclick="delete_pas({{p.get_id()}})">close</i>
+
                         {% endif %}
                     {% if p.tiempo//60 != 0 %}
-                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)</li>
+                        Paso {{loop.index}}: <br/>{{p.descripcion}} ({{p.tiempo//60}} min {{p.tiempo%60}} seg)
                     {% else %}
-                        <li class="collection-item">{{p.descripcion}} ({{p.tiempo%60}} seg)</li>
+                       Paso {{loop.index}}: <br/>{{p.descripcion}} ({{p.tiempo%60}} seg)
                     {% endif %}
                     </div>
                     {% endfor %}
+                </div>
 
                     {% if editar=='true' %}
-
-                    <li class = "collection-item">
-                        <input class="col s12 m8" type="text" placeholder="Descripción" id="paso_desc"/>
-                        <input class="col s12 m2" type="number" placeholder="Tiempo" id="paso_tim"/>
-                         <a class="btn-floating waves-effect waves-light red right teal"  onclick="insertar_paso()"><i class="material-icons">add</i></a>
-                    </li>
+                    <div class="row card-panel" style="margin-top:25px">
+                        <div class="col s12 m8">
+                            <input type="text" placeholder="Descripción" id="paso_desc"/>
+                        </div>
+                        <div class="col s8 m2">
+                            <input class="" type="number" placeholder="Tiempo" id="paso_tim"/>
+                        </div>
+                        <div class="col s4 m2">
+                            <a class="btn-floating btn-large"><i class="material-icons" onclick="insertar_paso()">add</i></a>
+                        </div>
+                    </div>
                     {% endif %}
-                </ol>
-                </p>
             </div>
         </div>
     </div>
+
+
 
 </div>
 <br><br>
@@ -71,90 +100,47 @@
 </div>
 {% block script %}
 <script>
-
-$(document).ready(function() {
-    aumentarTotal({{pasos|length}},1)
-});
-
-    function aumentarTotal(total,current){
-        var por = (current * 100) / total;
-         $('#Ttotal').css("with:50%");
+    var i = 1;
+    var x;
+    function empezar(pos){
+        $('#play').hide();
+        setTimeout('cambiarProgresoPaso(0,0)',0);
+        cambiarProgresoTotal(0);
     }
 
-    function aumetarPaso(total,current){
-        var por = (current * 100) / total;
-        $('#tPaso').css("with=40%");
+    function cambiarProgresoTotal(curr){
+        var ultimo = $('#last').val();
+        ultimo++;
+        var pr = (curr*100)/ultimo;
+        $('#Ttotal').css("width",pr+'%');
     }
 
-    function iniciar(){
-
-    }
-
-    function insertar_ingrediente(){
-        var ing = $('#ingrediente').val();
-        var can = $('#cantidad').val();
-        var des = $('#descripcion').val();
-
-        if(ing!="" && can!=""){
-            $.post( "/receta/addIns",{ id: "{{id}}", nombre: ing, descripcion: des, cantidad: can })
-            .done(function( data ) {
-                if(data == 'OK'){
-                    setTimeout(function(){$('#ingred').load(document.URL +  ' #ingred2')},1000);
-                }else{
-                    alert("Fallo en la insercion");
-                }
-
-            });
+    function cambiarProgresoPaso(it,npaso){
+        if ((npaso-1) == $('#last').val() ){
+            //poner algo aqui cuando acabe la receta
+            $('#msfinal').show();
+             $('#play').hide();
         }else{
-            alert("Debes insertar al menos un ingrediente y su cantidad");
-        }
-    }
-
-    function insertar_paso(){
-        var tim = $('#paso_tim').val();
-        var des = $('#paso_desc').val();
-
-        if(des!="" && tim > 0){
-            $.post( "/receta/addPas",{ id: "{{id}}", tiempo: tim, descripcion: des})
-            .done(function( data ) {
-                if(data == 'OK'){
-                    setTimeout(function(){$('#pasos').load(document.URL +  ' #pasos2')},1000);
-                }else{
-                    alert("Fallo en la insercion");
-                }
-            });
-        }else{
-            alert("Debes insertar una descripción y un tiempo positivo");
+            var pasoTiempo = $('#'+npaso).val();
+            var prog = (it*100)/pasoTiempo
+            $('#tPaso').css("width",prog+"%");
+            if (it == pasoTiempo){
+                npaso++;
+                $('#r'+npaso).hide();
+                npaso++;
+                $('#r'+npaso).show();
+                npaso--;
+                it=0;
+                cambiarProgresoPaso(it,npaso);
+                cambiarProgresoTotal(npaso);
+            }else{
+                it++;
+                setTimeout(cambiarProgresoPaso,500,it,npaso);
+            }
         }
 
-
-
-
     }
 
-    function delete_ing(id){
-        $.post( "/receta/delIns",{ id: id })
-        .done(function( data ) {
-           if(data == 'OK'){
-                setTimeout(function(){$('#ingred').load(document.URL +  ' #ingred2')},1000);
-           }else{
-                alert("Fallo en la eliminacion");
-           }
-
-        });
-    }
-
-    function delete_pas(id){
-        $.post( "/receta/delPas",{ id: id })
-        .done(function( data ) {
-           if(data == 'OK'){
-                setTimeout(function(){$('#pasos').load(document.URL +  ' #pasos2')},1000);
-           }else{
-                alert("Fallo en la eliminacion");
-           }
-
-        });
-    }
 </script>
 
 {% endblock %}

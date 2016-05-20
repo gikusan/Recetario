@@ -221,18 +221,21 @@ class MainHandler(Handler):
             self.response.write("Receta no encontrada")
         else:
             r = Receta.get_by_id(int(receta_key))
-            u = Usuario.query(Usuario.nick == usuario).fetch()[0]
             propietario = 'false'
-            if u.get_id() == r.id_usuario:
-                propietario = 'true'
-            if r :
+            guardada = False
+            if login=="si":
+                u = Usuario.query(Usuario.nick == usuario).fetch()[0]
+                guardada = u.receta_guardada(str(r.get_id()))
+                if u.get_id() == r.id_usuario:
+                    propietario = 'true'
+            if r:
                 self.render("receta.html",
                             rol=rol,
                             login=login,
                             receta=r,
                             propietario=propietario,
                             editar='false',
-                            guardada=u.receta_guardada(str(r.get_id())),
+                            guardada= guardada,
                             id=r.get_id(),
                             Ingredientes=r.obtener_ingredientes(),
                             Pasos=r.obtener_pasos())
@@ -319,6 +322,7 @@ class EditHandler(Handler):
         else:
             self.redirect("/")
 
+
 class RecetasAllHandler(Handler):
     def get(self):
         login = "no"
@@ -330,6 +334,7 @@ class RecetasAllHandler(Handler):
             rol = "Anonimo"
         recetas = Receta.query().fetch()
         self.render("pcr.html", rol=rol, login=login, recetas=recetas)
+
 
 class StoredHandler(Handler):
     def get(self):
@@ -422,7 +427,7 @@ class BusquedaHandler(Handler):
                                 </div>
                                 <div class="card-content">
                                     <span class="card-title activator grey-text text-darken-4">%(nombre)s<i class="material-icons right">more_vert</i></span>
-                                    <p><a href="/receta/ver?id={{r.get_id()}}">Ver Receta</a></p>
+                                    <p><a href="/receta/ver?id=%(id)s">Ver Receta</a></p>
                                 </div>
                                 <div class="card-reveal">
                                     <span class="card-title grey-text text-darken-4">%(nombre)s<i class="material-icons right">close</i></span>
@@ -436,6 +441,34 @@ class BusquedaHandler(Handler):
             respuesta += receta_card % {"id": r.get_id(),"nombre" :r.nombre,"descripcion" : r.descripcion}
 
         self.response.out.write(respuesta)
+
+
+class PlayHandler(Handler):
+    def get(self):
+        usuario = self.session.get('username')
+        rol = self.session.get('rol')
+        login = "no"
+        receta_key = self.request.get('id')
+
+        if not rol:
+            rol = "Anonimo"
+        if usuario:
+            login = "si"
+
+        if not receta_key:
+            self.error(404)
+            self.response.write("Receta no encontrada")
+        else:
+            r = Receta.get_by_id(int(receta_key))
+            if r:
+                self.render("pasos.html",
+                            rol=rol,
+                            login=login,
+                            receta=r,
+                            id=r.get_id(),
+                            Pasos=r.obtener_pasos())
+            else:
+                self.response.write("Receta no encontrada")
 
 
 class FavHandler(Handler):
@@ -478,6 +511,8 @@ app = webapp2.WSGIApplication([
     ('/receta/stored',StoredHandler),
     ('/receta/propias', RecetasPropiasHandler),
     ('/receta/categoria', RecetasCategoriaHandler),
+    ('/receta/votar', AddVoteHandler),
     ('/receta/busqueda', BusquedaHandler),
-    ('/receta/borrar', RemoveRecetaHandler)
+    ('/receta/borrar', RemoveRecetaHandler),
+    ('/receta/play', PlayHandler)
 ], config=config, debug=True)

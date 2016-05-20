@@ -8,19 +8,25 @@ function busquedaAJAX(){
   $.ajax("/receta/busqueda",
     {"type": "post",
     "data":{"buscar":$("#busqueda").val()},
-    "success": function(result) { $("#recetas").html(result);$('#loadingmessage').hide$('#loadingmessage').show();();},
+    "success": function(result) { $("#recetas").html(result);$('#loadingmessage').hide();},
     "error": function(result){ console.error("Se ha producido un error:", result);},
     "async": true })}
 </script>
 
 <div class="container">
-    <div class="section">
-      <form method="post">
-      <input type="text" name="busqueda" id="busqueda" onkeyup="busquedaAJAX()">
-      <form>
+    <div class="section ">
+        <div class="row">
+            <div class="input-field col s12">
+              <form method="post">
+                  <i class="material-icons prefix">search</i>
+              <input type="text" name="busqueda" id="busqueda" onkeyup="busquedaAJAX()">
+              <form>
+            </div>
+        </div>
+
         <!--   Icon Section   -->
-        <div id='loadingmessage' style='display:none'>
-          <div class="progress">
+        <div id='loadingmessage' style='display:none;'>
+          <div class="progress" style="height:20px">
             <div class="indeterminate"></div>
             </div>
         </div>
